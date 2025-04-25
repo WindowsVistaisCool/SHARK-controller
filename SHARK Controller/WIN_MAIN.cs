@@ -1,5 +1,6 @@
 using SharpDX.XInput;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace SHARK_Controller
@@ -13,6 +14,7 @@ namespace SHARK_Controller
 
         private bool sessionActive = false;
         private Thread? socketThread = null;
+        private Thread? socketReciever = null;
 
         private bool socketConnected = false;
 
@@ -28,8 +30,6 @@ namespace SHARK_Controller
             //};
 
 
-            console.Text = "";
-
             ss_controller_Click(null, null);
 
             disconnectControlModifications = [
@@ -39,7 +39,14 @@ namespace SHARK_Controller
                     c.ScrollToCaret();
                 }),
                 new ThreadSafeModification<TextBox>(joystickConsole, (c) => c.Text = "Joystick disabled."),
-                new ThreadSafeModification<Button>(b_connect, (c) => c.Text = "Connect to Robot"),
+                new ThreadSafeModification<Button>(b_connect, (c) => {
+                    c.Enabled = true;
+                    c.Text = "Connect to Robot";
+                }),
+                new ThreadSafeModification<TextBox>(robotState, (c) => {
+                    c.Text = "Disconnected";
+                    c.BackColor = Color.FromKnownColor(KnownColor.Control);
+                }),
                 new ThreadSafeModification<TextBox>(t_hostname, (c) => c.Enabled = true),
                 new ThreadSafeModification<NumericUpDown>(nud_port, (c) => c.Enabled = true)
             ];
@@ -50,11 +57,29 @@ namespace SHARK_Controller
             using TcpClient client = new();
             try
             {
+                if (!controller.IsConnected)
+                {
+                    throw new Exception("No controller detected. Exiting...");
+                }
+
                 client.Connect(hostName, port);
                 using NetworkStream stream = client.GetStream();
 
+                socketConnected = true;
+
+                socketReciever = new Thread(() => RunSocketReciever(stream))
+                {
+                    IsBackground = true
+                };
+                socketReciever.Start();
+
+                TSMPresets.SetEnabled(b_connect, true).Apply();
+                WriteConsole($"[SOCKET] Connected to {hostName}:{port}.");
+                WriteJoystickConsole("Joystick enabled.");
+
                 bool APressed = false;
                 bool BPressed = false;
+                bool YPressed = false;
 
                 bool isInTele = false;
                 bool isTank = false;
@@ -62,10 +87,6 @@ namespace SHARK_Controller
                 ss_robot.Text = "Robot connected.";
                 ss_robot.BackColor = Color.Green;
 
-                socketConnected = true;
-
-                WriteConsole($"[SOCKET] Connection opened to {hostName}:{port}.");
-                WriteJoystickConsole("Joystick enabled.");
                 while (socketConnected)
                 {
                     var state = controller.GetState();
@@ -89,7 +110,6 @@ namespace SHARK_Controller
                     {
                         APressed = true;
                         isInTele = false;
-                        WriteConsole("Robot Disabled.");
                         WriteJoystickConsole("[A] Disable Robot.");
                         WriteData(stream, "dis");
                         continue;
@@ -98,9 +118,16 @@ namespace SHARK_Controller
                     {
                         BPressed = true;
                         isInTele = true;
-                        WriteConsole("Robot Enabled Teleop.");
                         WriteJoystickConsole("[B] Enable Teleop.");
                         WriteData(stream, "tele");
+                        continue;
+                    }
+                    if (gamepad.Buttons == GamepadButtonFlags.Y && !YPressed)
+                    {
+                        YPressed = true;
+                        isInTele = true;
+                        WriteJoystickConsole("[Y] Enable Autonomous.");
+                        WriteData(stream, "auto");
                         continue;
                     }
 
@@ -141,6 +168,8 @@ namespace SHARK_Controller
                         APressed = false;
                     if (BPressed && gamepad.Buttons != GamepadButtonFlags.B)
                         BPressed = false;
+                    if (YPressed && gamepad.Buttons != GamepadButtonFlags.Y)
+                        YPressed = false;
                 }
             }
             catch (Exception ex)
@@ -159,6 +188,75 @@ namespace SHARK_Controller
             ss_robot.BackColor = Color.Red;
             socketThread = null;
         }
+
+        private void RunSocketReciever(NetworkStream stream)
+        {
+            try
+            {
+                WriteConsole($"[RECIEVER] Reciever connected.");
+                while (socketConnected)
+                {
+                    byte[] buffer = new byte[64];
+                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                    if (bytesRead == 0)
+                    {
+                        break;
+                    }
+
+                    string message = Encoding.ASCII.GetString(buffer, 0, bytesRead).Trim();
+
+                    if (message.StartsWith("[STATE] "))
+                    {
+                        string stateMessage = message.Substring(8);
+                        WriteConsole($"{message}");
+                        if (stateMessage == "DISABLE")
+                        {
+                            new ThreadSafeModification<TextBox>(robotState, (c) =>
+                            {
+                                c.Text = "DISABLED";
+                                c.BackColor = Color.Red;
+                            }).Apply();
+                        }
+                        else if (stateMessage == "TELEOP")
+                        {
+                            new ThreadSafeModification<TextBox>(robotState, (c) =>
+                            {
+                                c.Text = "TELEOP";
+                                c.BackColor = Color.Green;
+                            }).Apply();
+                        }
+                        else if (stateMessage == "AUTONOMOUS")
+                        {
+                            new ThreadSafeModification<TextBox>(robotState, (c) =>
+                            {
+                                c.Text = "AUTONOMOUS";
+                                c.BackColor = Color.Yellow;
+                            }).Apply();
+                        }
+                    }
+                    else if (message.StartsWith("[JOYSTICK] "))
+                    {
+                        string joystickMessage = message.Substring(11);
+                        WriteJoystickConsole($"[JOYSTICK] {joystickMessage}");
+                    }
+                    else
+                    {
+                        WriteConsole($"{message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteConsole($"[RECIEVER] Reciever Error: {ex.Message}");
+            }
+            finally
+            {
+                socketReciever = null;
+                WriteConsole("[RECIEVER] Reciever closed.");
+            }
+        }
+
         private static float NormalizeStick(short value)
         {
             return Math.Clamp(value / 32767f, -1f, 1f);
@@ -194,7 +292,7 @@ namespace SHARK_Controller
                 c.AppendText(message + "\r\n");
                 c.SelectionStart = c.Text.Length;
                 c.ScrollToCaret();
-            }).Apply(); 
+            }).Apply();
         }
 
         private void connect_Click(object sender, EventArgs e)
@@ -209,8 +307,13 @@ namespace SHARK_Controller
                 b_connect.Text = "Disconnect";
                 console.Text = "";
                 joystickConsole.Text = "";
+                robotState.Text = "Connecting";
+                b_connect.Enabled = false;
                 AddConsoleText("[SHARK UI] New session created.");
-                socketThread = new Thread(RunSocketThread);
+                socketThread = new Thread(RunSocketThread)
+                {
+                    IsBackground = true
+                };
                 socketThread.Start();
             }
             else

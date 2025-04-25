@@ -45,6 +45,8 @@
             clearConsole = new Button();
             joystickConsole = new TextBox();
             ls_joystickConsole = new Label();
+            robotState = new TextBox();
+            l_status = new Label();
             ss.SuspendLayout();
             p_main.SuspendLayout();
             tlp_main.SuspendLayout();
@@ -105,11 +107,11 @@
             // tlp_main
             // 
             tlp_main.ColumnCount = 5;
-            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 86F));
-            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 159F));
+            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 200F));
+            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80F));
             tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 225F));
-            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 127F));
+            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 293F));
+            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 110F));
             tlp_main.Controls.Add(console, 0, 6);
             tlp_main.Controls.Add(ls_console, 0, 5);
             tlp_main.Controls.Add(t_hostname, 3, 1);
@@ -118,8 +120,10 @@
             tlp_main.Controls.Add(nud_port, 4, 1);
             tlp_main.Controls.Add(b_connect, 0, 0);
             tlp_main.Controls.Add(clearConsole, 4, 5);
-            tlp_main.Controls.Add(joystickConsole, 0, 4);
-            tlp_main.Controls.Add(ls_joystickConsole, 0, 3);
+            tlp_main.Controls.Add(joystickConsole, 3, 4);
+            tlp_main.Controls.Add(ls_joystickConsole, 3, 3);
+            tlp_main.Controls.Add(robotState, 0, 4);
+            tlp_main.Controls.Add(l_status, 0, 3);
             tlp_main.Dock = DockStyle.Fill;
             tlp_main.Location = new Point(10, 10);
             tlp_main.Name = "tlp_main";
@@ -131,6 +135,7 @@
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 111F));
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 38F));
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 8F));
+            tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tlp_main.Size = new Size(704, 451);
             tlp_main.TabIndex = 0;
             // 
@@ -148,7 +153,7 @@
             console.Size = new Size(694, 181);
             console.TabIndex = 0;
             console.TabStop = false;
-            console.Text = "\r\n";
+            console.Text = "Welcome to the S.H.A.R.K. Controller v1.0!\r\nWritten by Kyle Rush 2025\r\n";
             // 
             // ls_console
             // 
@@ -165,9 +170,9 @@
             // t_hostname
             // 
             t_hostname.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            t_hostname.Location = new Point(355, 43);
+            t_hostname.Location = new Point(304, 43);
             t_hostname.Name = "t_hostname";
-            t_hostname.Size = new Size(219, 25);
+            t_hostname.Size = new Size(287, 25);
             t_hostname.TabIndex = 4;
             t_hostname.Text = "QuackStation";
             // 
@@ -176,7 +181,7 @@
             l_hostname.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             l_hostname.AutoSize = true;
             l_hostname.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
-            l_hostname.Location = new Point(355, 11);
+            l_hostname.Location = new Point(304, 11);
             l_hostname.Name = "l_hostname";
             l_hostname.Size = new Size(111, 23);
             l_hostname.TabIndex = 5;
@@ -187,7 +192,7 @@
             l_port.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             l_port.AutoSize = true;
             l_port.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
-            l_port.Location = new Point(580, 11);
+            l_port.Location = new Point(597, 11);
             l_port.Name = "l_port";
             l_port.Size = new Size(41, 23);
             l_port.TabIndex = 6;
@@ -196,10 +201,10 @@
             // nud_port
             // 
             nud_port.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            nud_port.Location = new Point(580, 43);
+            nud_port.Location = new Point(597, 43);
             nud_port.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
             nud_port.Name = "nud_port";
-            nud_port.Size = new Size(121, 25);
+            nud_port.Size = new Size(104, 25);
             nud_port.TabIndex = 7;
             nud_port.Value = new decimal(new int[] { 8008, 0, 0, 0 });
             // 
@@ -211,7 +216,7 @@
             b_connect.Location = new Point(3, 3);
             b_connect.Name = "b_connect";
             tlp_main.SetRowSpan(b_connect, 2);
-            b_connect.Size = new Size(239, 71);
+            b_connect.Size = new Size(274, 71);
             b_connect.TabIndex = 2;
             b_connect.Text = "Connect to Robot";
             b_connect.UseVisualStyleBackColor = true;
@@ -232,15 +237,15 @@
             // joystickConsole
             // 
             joystickConsole.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            tlp_main.SetColumnSpan(joystickConsole, 5);
+            tlp_main.SetColumnSpan(joystickConsole, 2);
             joystickConsole.Font = new Font("Segoe UI", 10.18868F);
-            joystickConsole.Location = new Point(5, 116);
+            joystickConsole.Location = new Point(306, 116);
             joystickConsole.Margin = new Padding(5);
             joystickConsole.Multiline = true;
             joystickConsole.Name = "joystickConsole";
             joystickConsole.ReadOnly = true;
             joystickConsole.ScrollBars = ScrollBars.Vertical;
-            joystickConsole.Size = new Size(694, 101);
+            joystickConsole.Size = new Size(393, 101);
             joystickConsole.TabIndex = 9;
             joystickConsole.TabStop = false;
             joystickConsole.Text = "Joystick disabled.";
@@ -251,14 +256,41 @@
             ls_joystickConsole.AutoSize = true;
             tlp_main.SetColumnSpan(ls_joystickConsole, 2);
             ls_joystickConsole.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
-            ls_joystickConsole.Location = new Point(3, 88);
+            ls_joystickConsole.Location = new Point(304, 88);
             ls_joystickConsole.Name = "ls_joystickConsole";
             ls_joystickConsole.Size = new Size(116, 23);
             ls_joystickConsole.TabIndex = 8;
             ls_joystickConsole.Text = "Joystick Input";
             // 
+            // robotState
+            // 
+            robotState.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            tlp_main.SetColumnSpan(robotState, 2);
+            robotState.Font = new Font("Segoe UI Black", 14.2641506F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            robotState.Location = new Point(3, 114);
+            robotState.Name = "robotState";
+            robotState.ReadOnly = true;
+            robotState.Size = new Size(274, 36);
+            robotState.TabIndex = 12;
+            robotState.TabStop = false;
+            robotState.Text = "Disconnected";
+            robotState.TextAlign = HorizontalAlignment.Center;
+            // 
+            // l_status
+            // 
+            l_status.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            l_status.AutoSize = true;
+            tlp_main.SetColumnSpan(l_status, 2);
+            l_status.Font = new Font("Segoe UI Semibold", 11F, FontStyle.Bold);
+            l_status.Location = new Point(3, 88);
+            l_status.Name = "l_status";
+            l_status.Size = new Size(109, 23);
+            l_status.TabIndex = 11;
+            l_status.Text = "Robot Status";
+            // 
             // WIN_MAIN
             // 
+            AcceptButton = b_connect;
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(724, 499);
@@ -298,5 +330,7 @@
         private Label ls_joystickConsole;
         private Button clearConsole;
         private TextBox console;
+        private Label l_status;
+        private TextBox robotState;
     }
 }
