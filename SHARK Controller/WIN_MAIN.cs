@@ -22,6 +22,12 @@ namespace SHARK_Controller
         {
             InitializeComponent();
 
+            //_ = new DarkModeForms.DarkModeCS(this)
+            //{
+            //    ColorMode = DarkModeForms.DarkModeCS.DisplayMode.DarkMode,
+            //};
+
+
             console.Text = "";
 
             ss_controller_Click(null, null);
@@ -258,7 +264,7 @@ namespace SHARK_Controller
         private void WIN_MAIN_FormClosing(object sender, FormClosingEventArgs e)
         {
             sessionActive = false;
-            socketThread?.Join();
+            socketConnected = false;
         }
     }
 }
