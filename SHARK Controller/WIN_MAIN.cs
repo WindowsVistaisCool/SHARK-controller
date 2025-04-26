@@ -9,8 +9,8 @@ namespace SHARK_Controller
     {
         private Controller? controller;
 
-        private string hostName = "QuackStation";
-        private int port = 8008;
+        private string hostName;
+        private int port;
 
         private bool sessionActive = false;
         private Thread? socketThread = null;
@@ -22,6 +22,8 @@ namespace SHARK_Controller
         private bool disableRequest = false;
         private bool killRequest = false;
 
+        private bool isInTele = false;
+
         private readonly List<IThreadSafeModification> disconnectControlModifications = [];
 
         private HashSet<Keys> pressedKeys = [];
@@ -29,6 +31,11 @@ namespace SHARK_Controller
         public WIN_MAIN()
         {
             InitializeComponent();
+
+            t_hostname.Text = MainSettings.Default.Hostname;
+            nud_port.Value = MainSettings.Default.Port;
+            hostName = t_hostname.Text;
+            port = (int)nud_port.Value;
 
             //_ = new DarkModeForms.DarkModeCS(this)
             //{
@@ -106,7 +113,6 @@ namespace SHARK_Controller
                 bool BPressed = false;
                 bool YPressed = false;
 
-                bool isInTele = false;
                 bool isTank = false;
 
                 ss_robot.Text = "Robot connected.";
@@ -146,8 +152,7 @@ namespace SHARK_Controller
                     if (gamepad.Buttons == GamepadButtonFlags.Y && !YPressed)
                     {
                         YPressed = true;
-                        isInTele = true;
-                        ////WriteJoystickConsole("[Y] Enable Autonomous.");
+                        isInTele = false;
                         WriteData(stream, "auto");
                         continue;
                     }
@@ -238,6 +243,7 @@ namespace SHARK_Controller
                                 c.Text = "DISABLED";
                                 c.BackColor = Color.Red;
                             }).Apply();
+                            isInTele = false;
                             SetEnableButton(false);
                         }
                         else if (stateMessage == "TELEOP")
@@ -247,6 +253,7 @@ namespace SHARK_Controller
                                 c.Text = "TELEOP";
                                 c.BackColor = Color.Green;
                             }).Apply();
+                            isInTele = true;
                             SetEnableButton(true);
                         }
                         else if (stateMessage == "AUTONOMOUS")
@@ -256,6 +263,7 @@ namespace SHARK_Controller
                                 c.Text = "AUTONOMOUS";
                                 c.BackColor = Color.Yellow;
                             }).Apply();
+                            isInTele = false;
                             SetEnableButton(true);
                         }
                     }
@@ -349,6 +357,7 @@ namespace SHARK_Controller
             nud_port.Enabled = !sessionActive;
             if (sessionActive)
             {
+                ss_controller_Click(null, null);
                 b_connect.Text = "Disconnect";
                 console.Text = "";
                 robotInfo.Text = "";
@@ -359,6 +368,11 @@ namespace SHARK_Controller
                 b_enable.BackColor = Color.FromKnownColor(KnownColor.Control);
                 b_disable.Enabled = false;
                 b_disable.BackColor = Color.FromKnownColor(KnownColor.Control);
+
+                MainSettings.Default.Hostname = hostName;
+                MainSettings.Default.Port = port;
+                MainSettings.Default.Save();
+
                 AddConsoleText("[SHARK UI] New session created.");
                 socketThread = new Thread(RunSocketThread)
                 {

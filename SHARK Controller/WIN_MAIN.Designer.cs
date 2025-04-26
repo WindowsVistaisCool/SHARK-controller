@@ -161,7 +161,7 @@
             console.Size = new Size(791, 150);
             console.TabIndex = 0;
             console.TabStop = false;
-            console.Text = "Welcome to the S.H.A.R.K. Controller v1.0!\r\nWritten by Kyle Rush 2025\r\n";
+            console.Text = "** Welcome to the S.H.A.R.K. Controller! **\r\n** Written by Kyle Rush **\r\n";
             // 
             // ls_console
             // 
