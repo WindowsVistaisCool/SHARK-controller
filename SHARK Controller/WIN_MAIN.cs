@@ -109,11 +109,7 @@ namespace SHARK_Controller
                 SetEnableButton(false);
                 WriteConsole($"[SOCKET] Connected to {hostName}:{port}.");
 
-                bool APressed = false;
-                bool BPressed = false;
-                bool YPressed = false;
-
-                bool isTank = false;
+                HashSet<GamepadButtonFlags> pressedButtons = [];
 
                 ss_robot.Text = "Robot connected.";
                 ss_robot.BackColor = Color.Green;
@@ -132,6 +128,14 @@ namespace SHARK_Controller
                         disableRequest = false;
                         continue;
                     }
+                    if (killRequest)
+                    {
+                        WriteConsole("Killing Robot.");
+                        killRequest = false;
+                        WriteData(stream, "exit");
+                        Thread.Sleep(100);
+                        break;
+                    }
 
                     var state = controller.GetState();
                     var gamepad = state.Gamepad;
@@ -141,61 +145,38 @@ namespace SHARK_Controller
                         WriteConsole("Disconnecting client.");
                         break;
                     }
-                    if (gamepad.Buttons == GamepadButtonFlags.Back || killRequest)
-                    {
-                        WriteConsole("Killing Robot.");
-                        killRequest = false;
-                        WriteData(stream, "exit");
-                        Thread.Sleep(100);
-                        break;
-                    }
-                    if (gamepad.Buttons == GamepadButtonFlags.Y && !YPressed)
-                    {
-                        YPressed = true;
-                        isInTele = false;
-                        WriteData(stream, "auto");
-                        continue;
-                    }
 
-                    // Switch robot centric mecanum vs. tank
-                    if (gamepad.Buttons == GamepadButtonFlags.LeftThumb)
-                    {
-                        WriteConsole("Switching to Robot Centric MECANUM");
-                        isTank = false;
-                    }
-                    else if (gamepad.Buttons == GamepadButtonFlags.RightThumb)
-                    {
-                        WriteConsole("Switching to TANK.");
-                        isTank = true;
-                    }
-
+                    // Only send joystick data in teleop
                     if (isInTele)
                     {
                         int leftX = RoundStick(NormalizeStick(gamepad.LeftThumbX));
                         int leftY = RoundStick(NormalizeStick(gamepad.LeftThumbY));
                         int rightX = RoundStick(NormalizeStick(gamepad.RightThumbX));
                         int rightY = RoundStick(NormalizeStick(gamepad.RightThumbY));
+                        float triggerL = RoundStick(gamepad.LeftTrigger);
+                        float triggerR = RoundStick(gamepad.RightTrigger);
 
-                        if (isTank)
+                        WriteData(stream, $"te-jstk,{leftX},{leftY},{rightX},{rightY},{triggerL},{triggerR};");
+
+                        Thread.Sleep(25);
+
+                        // Send button data
+                        foreach (var button in Enum.GetValues(typeof(GamepadButtonFlags)).Cast<GamepadButtonFlags>())
                         {
-                            //WriteJoystickConsole($"Tank Drive Parameters -  Left Stick: {leftY}  Right Stick: {rightY}");
-                            WriteData(stream, $"te-t,{leftY},{rightY}");
-                        }
-                        else
-                        {
-                            //WriteJoystickConsole($"Mecanum Drive Parameters -  X: {leftX}  Y: {leftY}  Rot: {rightX}");
-                            WriteData(stream, $"te-rc,{leftX},{leftY},{rightX}");
+                            if (gamepad.Buttons.HasFlag(button) && !pressedButtons.Contains(button))
+                            {
+                                pressedButtons.Add(button);
+                                WriteData(stream, $"te-btn,{button};");
+                            }
+                            else if (!gamepad.Buttons.HasFlag(button) && pressedButtons.Contains(button))
+                            {
+                                pressedButtons.Remove(button);
+                                WriteData(stream, $"te-btn,-{button};");
+                            }
                         }
                     }
 
-                    Thread.Sleep(50);
-
-                    if (APressed && gamepad.Buttons != GamepadButtonFlags.A)
-                        APressed = false;
-                    if (BPressed && gamepad.Buttons != GamepadButtonFlags.B)
-                        BPressed = false;
-                    if (YPressed && gamepad.Buttons != GamepadButtonFlags.Y)
-                        YPressed = false;
+                    Thread.Sleep(25);
                 }
             }
             catch (Exception ex)
@@ -293,7 +274,7 @@ namespace SHARK_Controller
             return Math.Clamp(value / 32767f, -1f, 1f);
         }
 
-        private static int RoundStick(float value, float threshold = 0.6f)
+        private static int RoundStick(float value, float threshold = 0.55f)
         {
             if (value > threshold) return 1;
             if (value < -threshold) return -1;
@@ -310,9 +291,13 @@ namespace SHARK_Controller
         {
             new ThreadSafeModification<TextBox>(console, (c) =>
             {
-                c.AppendText(message + "\r\n");
-                c.SelectionStart = c.Text.Length;
-                c.ScrollToCaret();
+                try
+                {
+                    c.AppendText(message + "\r\n");
+                    c.SelectionStart = c.Text.Length;
+                    c.ScrollToCaret();
+                }
+                catch { }
             }).Apply();
         }
 
@@ -348,7 +333,7 @@ namespace SHARK_Controller
             ]).Apply();
         }
 
-        private void connect_Click(object sender, EventArgs e)
+        private void ConnectButtonClicked(object sender, EventArgs e)
         {
             if (t_hostname.Text == "" || port < nud_port.Minimum || port > nud_port.Maximum)
             {

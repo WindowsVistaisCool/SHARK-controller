@@ -62,7 +62,7 @@
             ss.Items.AddRange(new ToolStripItem[] { ss_label, ss_robot, ss_controller });
             ss.Location = new Point(0, 436);
             ss.Name = "ss";
-            ss.Size = new Size(821, 33);
+            ss.Size = new Size(819, 33);
             ss.SizingGrip = false;
             ss.TabIndex = 1;
             ss.Text = "S.H.A.R.K. Controller v1.0 - ";
@@ -100,22 +100,26 @@
             // 
             // p_main
             // 
+            p_main.BackgroundImage = (Image)resources.GetObject("p_main.BackgroundImage");
+            p_main.BackgroundImageLayout = ImageLayout.Stretch;
             p_main.Controls.Add(tlp_main);
             p_main.Dock = DockStyle.Fill;
             p_main.Location = new Point(0, 0);
             p_main.Name = "p_main";
             p_main.Padding = new Padding(10, 10, 10, 5);
-            p_main.Size = new Size(821, 436);
+            p_main.Size = new Size(819, 436);
             p_main.TabIndex = 2;
             // 
             // tlp_main
             // 
+            tlp_main.AutoSize = true;
+            tlp_main.BackColor = Color.Transparent;
             tlp_main.ColumnCount = 5;
             tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 200F));
-            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 234F));
-            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 14F));
-            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 223F));
-            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 129F));
+            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 177F));
+            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 27F));
+            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 262F));
+            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 134F));
             tlp_main.Controls.Add(console, 0, 7);
             tlp_main.Controls.Add(ls_console, 0, 6);
             tlp_main.Controls.Add(t_hostname, 3, 1);
@@ -143,22 +147,24 @@
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 36F));
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 27F));
-            tlp_main.Size = new Size(801, 421);
+            tlp_main.Size = new Size(799, 421);
             tlp_main.TabIndex = 0;
             // 
             // console
             // 
             console.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            console.BackColor = SystemColors.InactiveCaptionText;
             console.BorderStyle = BorderStyle.FixedSingle;
             tlp_main.SetColumnSpan(console, 5);
-            console.Font = new Font("Segoe UI", 10.18868F);
+            console.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            console.ForeColor = Color.LawnGreen;
             console.Location = new Point(5, 266);
             console.Margin = new Padding(5);
             console.Multiline = true;
             console.Name = "console";
             console.ReadOnly = true;
             console.ScrollBars = ScrollBars.Vertical;
-            console.Size = new Size(791, 150);
+            console.Size = new Size(790, 150);
             console.TabIndex = 0;
             console.TabStop = false;
             console.Text = "** Welcome to the S.H.A.R.K. Controller! **\r\n** Written by Kyle Rush **\r\n";
@@ -178,9 +184,9 @@
             // t_hostname
             // 
             t_hostname.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            t_hostname.Location = new Point(451, 40);
+            t_hostname.Location = new Point(407, 40);
             t_hostname.Name = "t_hostname";
-            t_hostname.Size = new Size(217, 25);
+            t_hostname.Size = new Size(256, 25);
             t_hostname.TabIndex = 4;
             t_hostname.Text = "QuackStation";
             // 
@@ -189,7 +195,7 @@
             l_hostname.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             l_hostname.AutoSize = true;
             l_hostname.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
-            l_hostname.Location = new Point(451, 14);
+            l_hostname.Location = new Point(407, 14);
             l_hostname.Name = "l_hostname";
             l_hostname.Size = new Size(97, 20);
             l_hostname.TabIndex = 5;
@@ -200,7 +206,7 @@
             l_port.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             l_port.AutoSize = true;
             l_port.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
-            l_port.Location = new Point(674, 14);
+            l_port.Location = new Point(669, 14);
             l_port.Name = "l_port";
             l_port.Size = new Size(37, 20);
             l_port.TabIndex = 6;
@@ -209,10 +215,10 @@
             // nud_port
             // 
             nud_port.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            nud_port.Location = new Point(674, 40);
+            nud_port.Location = new Point(669, 40);
             nud_port.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
             nud_port.Name = "nud_port";
-            nud_port.Size = new Size(124, 25);
+            nud_port.Size = new Size(128, 25);
             nud_port.TabIndex = 7;
             nud_port.Value = new decimal(new int[] { 8008, 0, 0, 0 });
             // 
@@ -224,17 +230,17 @@
             b_connect.Location = new Point(3, 3);
             b_connect.Name = "b_connect";
             tlp_main.SetRowSpan(b_connect, 2);
-            b_connect.Size = new Size(428, 66);
+            b_connect.Size = new Size(371, 66);
             b_connect.TabIndex = 2;
             b_connect.Text = "Connect to Robot";
             b_connect.UseVisualStyleBackColor = true;
-            b_connect.Click += connect_Click;
+            b_connect.Click += ConnectButtonClicked;
             // 
             // b_clearConsole
             // 
             b_clearConsole.Anchor = AnchorStyles.Right;
             b_clearConsole.AutoSize = true;
-            b_clearConsole.Location = new Point(699, 229);
+            b_clearConsole.Location = new Point(698, 229);
             b_clearConsole.Name = "b_clearConsole";
             b_clearConsole.Size = new Size(99, 27);
             b_clearConsole.TabIndex = 10;
@@ -248,14 +254,14 @@
             robotInfo.BorderStyle = BorderStyle.FixedSingle;
             tlp_main.SetColumnSpan(robotInfo, 2);
             robotInfo.Font = new Font("Segoe UI", 10.18868F);
-            robotInfo.Location = new Point(453, 123);
+            robotInfo.Location = new Point(409, 123);
             robotInfo.Margin = new Padding(5);
             robotInfo.Multiline = true;
             robotInfo.Name = "robotInfo";
             robotInfo.ReadOnly = true;
             tlp_main.SetRowSpan(robotInfo, 2);
             robotInfo.ScrollBars = ScrollBars.Vertical;
-            robotInfo.Size = new Size(343, 97);
+            robotInfo.Size = new Size(386, 97);
             robotInfo.TabIndex = 9;
             robotInfo.TabStop = false;
             // 
@@ -264,7 +270,7 @@
             ls_robotInfo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             ls_robotInfo.AutoSize = true;
             ls_robotInfo.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
-            ls_robotInfo.Location = new Point(451, 98);
+            ls_robotInfo.Location = new Point(407, 98);
             ls_robotInfo.Name = "ls_robotInfo";
             ls_robotInfo.Size = new Size(135, 20);
             ls_robotInfo.TabIndex = 8;
@@ -281,7 +287,7 @@
             robotState.Name = "robotState";
             robotState.ReadOnly = true;
             robotState.ShortcutsEnabled = false;
-            robotState.Size = new Size(428, 36);
+            robotState.Size = new Size(371, 36);
             robotState.TabIndex = 12;
             robotState.TabStop = false;
             robotState.Text = "Disconnected";
@@ -338,7 +344,7 @@
             b_kill.Anchor = AnchorStyles.Right;
             b_kill.AutoSize = true;
             b_kill.Enabled = false;
-            b_kill.Location = new Point(688, 85);
+            b_kill.Location = new Point(687, 85);
             b_kill.Name = "b_kill";
             b_kill.Size = new Size(110, 27);
             b_kill.TabIndex = 15;
@@ -350,7 +356,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(821, 469);
+            ClientSize = new Size(819, 469);
             Controls.Add(p_main);
             Controls.Add(ss);
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -365,6 +371,7 @@
             ss.ResumeLayout(false);
             ss.PerformLayout();
             p_main.ResumeLayout(false);
+            p_main.PerformLayout();
             tlp_main.ResumeLayout(false);
             tlp_main.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)nud_port).EndInit();
