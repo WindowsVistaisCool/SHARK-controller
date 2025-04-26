@@ -50,6 +50,7 @@
             b_enable = new Button();
             b_disable = new Button();
             b_kill = new Button();
+            b_startCode = new Button();
             ss.SuspendLayout();
             p_main.SuspendLayout();
             tlp_main.SuspendLayout();
@@ -135,6 +136,7 @@
             tlp_main.Controls.Add(b_enable, 0, 5);
             tlp_main.Controls.Add(b_disable, 1, 5);
             tlp_main.Controls.Add(b_kill, 4, 3);
+            tlp_main.Controls.Add(b_startCode, 3, 6);
             tlp_main.Dock = DockStyle.Fill;
             tlp_main.Location = new Point(10, 10);
             tlp_main.Name = "tlp_main";
@@ -173,7 +175,6 @@
             // 
             ls_console.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             ls_console.AutoSize = true;
-            tlp_main.SetColumnSpan(ls_console, 2);
             ls_console.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
             ls_console.Location = new Point(3, 241);
             ls_console.Name = "ls_console";
@@ -310,6 +311,7 @@
             // b_enable
             // 
             b_enable.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            b_enable.BackColor = SystemColors.Control;
             b_enable.Enabled = false;
             b_enable.FlatStyle = FlatStyle.Popup;
             b_enable.Font = new Font("Segoe UI", 18.3396225F);
@@ -326,6 +328,7 @@
             // b_disable
             // 
             b_disable.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            b_disable.BackColor = SystemColors.Control;
             b_disable.Enabled = false;
             b_disable.FlatStyle = FlatStyle.Popup;
             b_disable.Font = new Font("Segoe UI", 18.3396225F);
@@ -351,6 +354,18 @@
             b_kill.Text = "Kill Robot Code";
             b_kill.UseVisualStyleBackColor = true;
             b_kill.Click += b_kill_Click;
+            // 
+            // b_startCode
+            // 
+            b_startCode.Anchor = AnchorStyles.Left;
+            b_startCode.AutoSize = true;
+            b_startCode.Location = new Point(407, 229);
+            b_startCode.Name = "b_startCode";
+            b_startCode.Size = new Size(155, 27);
+            b_startCode.TabIndex = 16;
+            b_startCode.Text = "Start Robot Code (SSH)";
+            b_startCode.UseVisualStyleBackColor = true;
+            b_startCode.Click += b_startCode_Click;
             // 
             // WIN_MAIN
             // 
@@ -401,5 +416,6 @@
         private Button b_disable;
         private TextBox console;
         private Button b_kill;
+        private Button b_startCode;
     }
 }

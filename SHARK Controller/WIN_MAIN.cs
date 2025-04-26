@@ -70,7 +70,8 @@ namespace SHARK_Controller
                     c.Visible = false;
                     c.BackColor = Color.FromKnownColor(KnownColor.Control);
                 }),
-                TSMPresets.SetEnabled(b_kill, false)
+                TSMPresets.SetEnabled(b_kill, false),
+                TSMPresets.SetVisible(b_startCode, true),
             ];
         }
 
@@ -149,12 +150,13 @@ namespace SHARK_Controller
                     // Only send joystick data in teleop
                     if (isInTele)
                     {
+                        // Send stick data
                         int leftX = RoundStick(NormalizeStick(gamepad.LeftThumbX));
                         int leftY = RoundStick(NormalizeStick(gamepad.LeftThumbY));
                         int rightX = RoundStick(NormalizeStick(gamepad.RightThumbX));
                         int rightY = RoundStick(NormalizeStick(gamepad.RightThumbY));
-                        float triggerL = RoundStick(gamepad.LeftTrigger);
-                        float triggerR = RoundStick(gamepad.RightTrigger);
+                        int triggerL = RoundStick(gamepad.LeftTrigger, 75f);
+                        int triggerR = RoundStick(gamepad.RightTrigger, 75f);
 
                         WriteData(stream, $"te-jstk,{leftX},{leftY},{rightX},{rightY},{triggerL},{triggerR};");
 
@@ -356,6 +358,7 @@ namespace SHARK_Controller
                 robotInfo.Text = "";
                 robotState.Text = "Connecting";
                 robotState.BackColor = Color.SandyBrown;
+                b_startCode.Visible = false;
                 b_connect.Enabled = false;
                 b_enable.Enabled = false;
                 b_enable.BackColor = Color.FromKnownColor(KnownColor.Control);
@@ -464,6 +467,17 @@ namespace SHARK_Controller
         private void WIN_MAIN_KeyUp(object sender, KeyEventArgs e)
         {
             pressedKeys.Remove(e.KeyCode);
+        }
+
+        private void b_startCode_Click(object sender, EventArgs e)
+        {
+            if (t_hostname.Text.ToLower() != "shark.local")
+            {
+                MessageBox.Show("This is only supported on the offical S.H.A.R.K.!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            
         }
     }
 }
