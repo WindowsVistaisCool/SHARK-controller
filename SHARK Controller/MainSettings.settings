@@ -3,10 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="Hostname" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">localhost</Value>
     </Setting>
     <Setting Name="Port" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">8008</Value>
     </Setting>
   </Settings>
 </SettingsFile>

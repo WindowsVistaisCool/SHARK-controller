@@ -350,6 +350,13 @@ namespace SHARK_Controller
 
         private void connect_Click(object sender, EventArgs e)
         {
+            if (t_hostname.Text == "" || port < nud_port.Minimum || port > nud_port.Maximum)
+            {
+                MessageBox.Show("Please enter a valid hostname and port.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                sessionActive = false;
+                return;
+            }
+
             sessionActive = !sessionActive;
             hostName = t_hostname.Text;
             port = (int)nud_port.Value;
@@ -358,6 +365,7 @@ namespace SHARK_Controller
             if (sessionActive)
             {
                 ss_controller_Click(null, null);
+
                 b_connect.Text = "Disconnect";
                 console.Text = "";
                 robotInfo.Text = "";
@@ -411,7 +419,6 @@ namespace SHARK_Controller
             {
                 ss_controller.Text = "Controller connected.";
                 ss_controller.BackColor = Color.LightGreen;
-                AddConsoleText("[SHARK UI] Controller connected successfully.");
             }
             else
             {

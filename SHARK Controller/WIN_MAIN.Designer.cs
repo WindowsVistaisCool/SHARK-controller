@@ -356,7 +356,6 @@
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             KeyPreview = true;
-            MaximizeBox = false;
             Name = "WIN_MAIN";
             StartPosition = FormStartPosition.CenterParent;
             Text = "S.H.A.R.K. Controller";
