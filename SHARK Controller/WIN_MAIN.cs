@@ -7,7 +7,7 @@ namespace SHARK_Controller
 {
     public partial class WIN_MAIN : Form
     {
-        private Controller controller;
+        private Controller? controller;
 
         private string hostName = "QuackStation";
         private int port = 8008;
@@ -18,7 +18,13 @@ namespace SHARK_Controller
 
         private bool socketConnected = false;
 
-        private List<IThreadSafeModification> disconnectControlModifications = [];
+        private bool teleopRequest = false;
+        private bool disableRequest = false;
+        private bool killRequest = false;
+
+        private readonly List<IThreadSafeModification> disconnectControlModifications = [];
+
+        private HashSet<Keys> pressedKeys = [];
 
         public WIN_MAIN()
         {
@@ -29,7 +35,6 @@ namespace SHARK_Controller
             //    ColorMode = DarkModeForms.DarkModeCS.DisplayMode.DarkMode,
             //};
 
-
             ss_controller_Click(null, null);
 
             disconnectControlModifications = [
@@ -38,7 +43,6 @@ namespace SHARK_Controller
                     c.SelectionStart = c.Text.Length;
                     c.ScrollToCaret();
                 }),
-                new ThreadSafeModification<TextBox>(joystickConsole, (c) => c.Text = "Joystick disabled."),
                 new ThreadSafeModification<Button>(b_connect, (c) => {
                     c.Enabled = true;
                     c.Text = "Connect to Robot";
@@ -47,8 +51,19 @@ namespace SHARK_Controller
                     c.Text = "Disconnected";
                     c.BackColor = Color.FromKnownColor(KnownColor.Control);
                 }),
-                new ThreadSafeModification<TextBox>(t_hostname, (c) => c.Enabled = true),
-                new ThreadSafeModification<NumericUpDown>(nud_port, (c) => c.Enabled = true)
+                TSMPresets.SetEnabled(t_hostname, true),
+                TSMPresets.SetEnabled(nud_port, true),
+                new ThreadSafeModification<Button>(b_enable, (c) => {
+                    c.Enabled = false;
+                    c.Visible = false;
+                    c.BackColor = Color.FromKnownColor(KnownColor.Control);
+                }),
+                new ThreadSafeModification<Button>(b_disable, (c) => {
+                    c.Enabled = false;
+                    c.Visible = false;
+                    c.BackColor = Color.FromKnownColor(KnownColor.Control);
+                }),
+                TSMPresets.SetEnabled(b_kill, false)
             ];
         }
 
@@ -57,7 +72,7 @@ namespace SHARK_Controller
             using TcpClient client = new();
             try
             {
-                if (!controller.IsConnected)
+                if (!controller!.IsConnected)
                 {
                     throw new Exception("No controller detected. Exiting...");
                 }
@@ -73,9 +88,19 @@ namespace SHARK_Controller
                 };
                 socketReciever.Start();
 
-                TSMPresets.SetEnabled(b_connect, true).Apply();
+                // update UI elements (safely)
+                new TSMCollection([
+                    new ThreadSafeModification<Button>(b_connect, (c) =>
+                    {
+                        c.Enabled = true;
+                        ActiveControl = c;
+                    }),
+                    TSMPresets.SetEnabled(b_kill, true),
+                    TSMPresets.SetVisible(b_enable, true),
+                    TSMPresets.SetVisible(b_disable, true),
+                ]).Apply();
+                SetEnableButton(false);
                 WriteConsole($"[SOCKET] Connected to {hostName}:{port}.");
-                WriteJoystickConsole("Joystick enabled.");
 
                 bool APressed = false;
                 bool BPressed = false;
@@ -89,44 +114,40 @@ namespace SHARK_Controller
 
                 while (socketConnected)
                 {
+                    if (teleopRequest)
+                    {
+                        WriteData(stream, "tele");
+                        teleopRequest = false;
+                        continue;
+                    }
+                    if (disableRequest)
+                    {
+                        WriteData(stream, "dis");
+                        disableRequest = false;
+                        continue;
+                    }
+
                     var state = controller.GetState();
                     var gamepad = state.Gamepad;
 
                     if (gamepad.Buttons == GamepadButtonFlags.Start)
                     {
                         WriteConsole("Disconnecting client.");
-                        WriteJoystickConsole("[START] Disconnecting client.");
                         break;
                     }
-                    if (gamepad.Buttons == GamepadButtonFlags.Back)
+                    if (gamepad.Buttons == GamepadButtonFlags.Back || killRequest)
                     {
                         WriteConsole("Killing Robot.");
-                        WriteJoystickConsole("[BACK] Killing Robot.");
+                        killRequest = false;
                         WriteData(stream, "exit");
                         Thread.Sleep(100);
                         break;
-                    }
-                    if (gamepad.Buttons == GamepadButtonFlags.A && !APressed)
-                    {
-                        APressed = true;
-                        isInTele = false;
-                        WriteJoystickConsole("[A] Disable Robot.");
-                        WriteData(stream, "dis");
-                        continue;
-                    }
-                    if (gamepad.Buttons == GamepadButtonFlags.B && !BPressed)
-                    {
-                        BPressed = true;
-                        isInTele = true;
-                        WriteJoystickConsole("[B] Enable Teleop.");
-                        WriteData(stream, "tele");
-                        continue;
                     }
                     if (gamepad.Buttons == GamepadButtonFlags.Y && !YPressed)
                     {
                         YPressed = true;
                         isInTele = true;
-                        WriteJoystickConsole("[Y] Enable Autonomous.");
+                        ////WriteJoystickConsole("[Y] Enable Autonomous.");
                         WriteData(stream, "auto");
                         continue;
                     }
@@ -134,12 +155,12 @@ namespace SHARK_Controller
                     // Switch robot centric mecanum vs. tank
                     if (gamepad.Buttons == GamepadButtonFlags.LeftThumb)
                     {
-                        WriteJoystickConsole("Switching to Robot Centric MECANUM");
+                        WriteConsole("Switching to Robot Centric MECANUM");
                         isTank = false;
                     }
                     else if (gamepad.Buttons == GamepadButtonFlags.RightThumb)
                     {
-                        WriteJoystickConsole("Switching to TANK.");
+                        WriteConsole("Switching to TANK.");
                         isTank = true;
                     }
 
@@ -152,12 +173,12 @@ namespace SHARK_Controller
 
                         if (isTank)
                         {
-                            WriteJoystickConsole($"Tank Drive Parameters -  Left Stick: {leftY}  Right Stick: {rightY}");
+                            //WriteJoystickConsole($"Tank Drive Parameters -  Left Stick: {leftY}  Right Stick: {rightY}");
                             WriteData(stream, $"te-t,{leftY},{rightY}");
                         }
                         else
                         {
-                            WriteJoystickConsole($"Mecanum Drive Parameters -  X: {leftX}  Y: {leftY}  Rot: {rightX}");
+                            //WriteJoystickConsole($"Mecanum Drive Parameters -  X: {leftX}  Y: {leftY}  Rot: {rightX}");
                             WriteData(stream, $"te-rc,{leftX},{leftY},{rightX}");
                         }
                     }
@@ -196,7 +217,7 @@ namespace SHARK_Controller
                 WriteConsole($"[RECIEVER] Reciever connected.");
                 while (socketConnected)
                 {
-                    byte[] buffer = new byte[64];
+                    byte[] buffer = new byte[256];
                     int bytesRead = stream.Read(buffer, 0, buffer.Length);
 
                     if (bytesRead == 0)
@@ -208,7 +229,7 @@ namespace SHARK_Controller
 
                     if (message.StartsWith("[STATE] "))
                     {
-                        string stateMessage = message.Substring(8);
+                        string stateMessage = message[8..];
                         WriteConsole($"{message}");
                         if (stateMessage == "DISABLE")
                         {
@@ -217,6 +238,7 @@ namespace SHARK_Controller
                                 c.Text = "DISABLED";
                                 c.BackColor = Color.Red;
                             }).Apply();
+                            SetEnableButton(false);
                         }
                         else if (stateMessage == "TELEOP")
                         {
@@ -225,6 +247,7 @@ namespace SHARK_Controller
                                 c.Text = "TELEOP";
                                 c.BackColor = Color.Green;
                             }).Apply();
+                            SetEnableButton(true);
                         }
                         else if (stateMessage == "AUTONOMOUS")
                         {
@@ -233,12 +256,12 @@ namespace SHARK_Controller
                                 c.Text = "AUTONOMOUS";
                                 c.BackColor = Color.Yellow;
                             }).Apply();
+                            SetEnableButton(true);
                         }
                     }
-                    else if (message.StartsWith("[JOYSTICK] "))
+                    else if (message.StartsWith("[ROBOTINFO] "))
                     {
-                        string joystickMessage = message.Substring(11);
-                        WriteJoystickConsole($"[JOYSTICK] {joystickMessage}");
+                        WriteRobotInfo($"{message[12..].Replace("\n", "\r\n")}");
                     }
                     else
                     {
@@ -285,14 +308,36 @@ namespace SHARK_Controller
             }).Apply();
         }
 
-        private void WriteJoystickConsole(string message)
+        private void WriteRobotInfo(string message)
         {
-            new ThreadSafeModification<TextBox>(joystickConsole, (c) =>
+            new ThreadSafeModification<TextBox>(robotInfo, (c) =>
             {
                 c.AppendText(message + "\r\n");
-                c.SelectionStart = c.Text.Length;
-                c.ScrollToCaret();
             }).Apply();
+        }
+
+        private void SetEnableButton(bool enable)
+        {
+            new TSMCollection([
+                new ThreadSafeModification<Button>(b_enable, (c) =>
+                {
+                    c.BackColor = enable ? Color.LightGreen : Color.FromKnownColor(KnownColor.Control);
+                    c.Enabled = !enable;
+                    if (enable)
+                    {
+                        ActiveControl = b_disable;
+                    }
+                }),
+                new ThreadSafeModification<Button>(b_disable, (c) =>
+                {
+                    c.BackColor = enable ? Color.FromKnownColor(KnownColor.Control) : Color.Tomato;
+                    c.Enabled = enable;
+                    if (!enable)
+                    {
+                        ActiveControl = c;
+                    }
+                })
+            ]).Apply();
         }
 
         private void connect_Click(object sender, EventArgs e)
@@ -306,9 +351,14 @@ namespace SHARK_Controller
             {
                 b_connect.Text = "Disconnect";
                 console.Text = "";
-                joystickConsole.Text = "";
+                robotInfo.Text = "";
                 robotState.Text = "Connecting";
+                robotState.BackColor = Color.SandyBrown;
                 b_connect.Enabled = false;
+                b_enable.Enabled = false;
+                b_enable.BackColor = Color.FromKnownColor(KnownColor.Control);
+                b_disable.Enabled = false;
+                b_disable.BackColor = Color.FromKnownColor(KnownColor.Control);
                 AddConsoleText("[SHARK UI] New session created.");
                 socketThread = new Thread(RunSocketThread)
                 {
@@ -333,13 +383,6 @@ namespace SHARK_Controller
             console.Text += message + "\r\n";
             console.SelectionStart = console.Text.Length;
             console.ScrollToCaret();
-        }
-
-        private void AddJoystickConsoleText(string message)
-        {
-            joystickConsole.Text += message + "\r\n";
-            joystickConsole.SelectionStart = joystickConsole.Text.Length;
-            joystickConsole.ScrollToCaret();
         }
 
         private void ss_label_Click(object sender, EventArgs e)
@@ -368,6 +411,53 @@ namespace SHARK_Controller
         {
             sessionActive = false;
             socketConnected = false;
+        }
+
+        private void robotState_Enter(object sender, EventArgs e)
+        {
+            ActiveControl = null;
+        }
+
+        private void b_enable_Click(object sender, EventArgs e)
+        {
+            teleopRequest = true;
+
+        }
+
+        private void b_disable_Click(object sender, EventArgs e)
+        {
+            disableRequest = true;
+        }
+        private void b_kill_Click(object sender, EventArgs e)
+        {
+            killRequest = true;
+        }
+
+        private void WIN_MAIN_KeyDown(object sender, KeyEventArgs e)
+        {
+            pressedKeys.Add(e.KeyCode);
+
+            if (e.KeyCode == Keys.Enter)
+            {
+                disableRequest = true;
+                e.Handled = true;
+            }
+
+            else if (e.KeyCode == Keys.Space)
+            {
+                //e.Handled = true;
+            }
+
+            if (b_enable.Enabled && pressedKeys.Contains(Keys.OemPipe) && pressedKeys.Contains(Keys.Oem6) && pressedKeys.Contains(Keys.Oem4))
+            {
+                b_enable.PerformClick();
+                e.Handled = true;
+            }
+        }
+
+        private void WIN_MAIN_KeyUp(object sender, KeyEventArgs e)
+        {
+            pressedKeys.Remove(e.KeyCode);
         }
     }
 }
