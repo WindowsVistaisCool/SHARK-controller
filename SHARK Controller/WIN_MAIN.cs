@@ -9,6 +9,7 @@ namespace SHARK_Controller
     public partial class WIN_MAIN : Form
     {
         private Controller? controller;
+        private bool bypassJoystick = false;
 
         private string hostName;
         private int port;
@@ -25,7 +26,8 @@ namespace SHARK_Controller
 
         private bool isInTele = false;
 
-        private readonly List<IThreadSafeModification> disconnectControlModifications = [];
+        private readonly TSMCollection connectControlModifications = new();
+        private readonly TSMCollection disconnectControlModifications = new();
 
         private HashSet<Keys> pressedKeys = [];
 
@@ -45,9 +47,21 @@ namespace SHARK_Controller
 
             ss_controller_Click(null, null);
 
-            disconnectControlModifications = [
+            connectControlModifications = new TSMCollection([
+                new ThreadSafeModification<Button>(b_connect, (c) =>
+                {
+                    c.Enabled = true;
+                    ActiveControl = c;
+                    ms_robot.Enabled = true;
+                }),
+                TSMPresets.SetEnabled(b_kill, true),
+                TSMPresets.SetVisible(b_enable, true),
+                TSMPresets.SetVisible(b_disable, true),
+            ]);
+
+            disconnectControlModifications = new TSMCollection([
                 new ThreadSafeModification<TextBox>(console, (c) => {
-                    c.AppendText("[SHARK UI] Return from session.\r\n");
+                    ms_robot.Enabled = false;                    c.AppendText("[SHARK UI] Return from session.\r\n");
                     c.SelectionStart = c.Text.Length;
                     c.ScrollToCaret();
                 }),
@@ -72,8 +86,8 @@ namespace SHARK_Controller
                     c.BackColor = Color.FromKnownColor(KnownColor.Control);
                 }),
                 TSMPresets.SetEnabled(b_kill, false),
-                TSMPresets.SetVisible(b_startCode, true),
-            ];
+                TSMPresets.SetVisible(b_startCode, true)
+            ]);
         }
 
         private void RunSocketThread()
@@ -81,9 +95,13 @@ namespace SHARK_Controller
             using TcpClient client = new();
             try
             {
-                if (!controller!.IsConnected)
+                if (!controller!.IsConnected && !bypassJoystick)
                 {
                     throw new Exception("No controller detected. Exiting...");
+                }
+                else if (bypassJoystick)
+                {
+                    WriteConsole("[SOCKET] WARNING! Bypassing joystick input.");
                 }
 
                 client.Connect(hostName, port);
@@ -98,16 +116,7 @@ namespace SHARK_Controller
                 socketReciever.Start();
 
                 // update UI elements (safely)
-                new TSMCollection([
-                    new ThreadSafeModification<Button>(b_connect, (c) =>
-                    {
-                        c.Enabled = true;
-                        ActiveControl = c;
-                    }),
-                    TSMPresets.SetEnabled(b_kill, true),
-                    TSMPresets.SetVisible(b_enable, true),
-                    TSMPresets.SetVisible(b_disable, true),
-                ]).Apply();
+                connectControlModifications.Apply();
                 SetEnableButton(false);
                 WriteConsole($"[SOCKET] Connected to {hostName}:{port}.");
 
@@ -137,6 +146,10 @@ namespace SHARK_Controller
                         WriteData(stream, "exit");
                         Thread.Sleep(100);
                         break;
+                    }
+                    if (bypassJoystick)
+                    {
+                        continue;
                     }
 
                     var state = controller.GetState();
@@ -193,7 +206,7 @@ namespace SHARK_Controller
             }
             sessionActive = false;
             socketConnected = false;
-            new TSMCollection(disconnectControlModifications).Apply();
+            disconnectControlModifications.Apply();
             ss_robot.Text = "Robot disconnected.";
             ss_robot.BackColor = Color.Red;
             socketThread = null;
@@ -403,6 +416,18 @@ namespace SHARK_Controller
 
         private void ss_controller_Click(object? sender, EventArgs? e)
         {
+            if (joystick_bypass.Checked)
+            {
+                if (e != null)
+                {
+                    bypassJoystick = false;
+                    joystick_bypass.Checked = false;
+                }
+                else
+                {
+                    return;
+                }
+            }
             controller = new Controller(UserIndex.One);
             if (controller.IsConnected)
             {
@@ -479,8 +504,31 @@ namespace SHARK_Controller
             }
 
             Process sshProcess = Process.Start("cmd.exe");
-            sshProcess.StartInfo.Arguments = $"/c ssh pi@{t_hostname.Text}";
+            sshProcess.StartInfo.Arguments = $"/c ssh pi@{t_hostname.Text} \"cd /home/pi/robot && python3 Main.py\"";
             sshProcess.Start();
+        }
+
+        private void robot_customPacket_Click(object sender, EventArgs e)
+        {
+            new WIN_CustomPacket().ShowDialog();
+        }
+
+        private void robot_auton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void joystick_bypass_Click(object sender, EventArgs e)
+        {
+            bypassJoystick = joystick_bypass.Checked;
+
+            ss_controller.Text = bypassJoystick ? "Controller Bypassed." : "Controller Connected.";
+            ss_controller.BackColor = Color.Gray;
+
+            if (!bypassJoystick)
+            {
+                ss_controller_Click(null, null);
+            }
         }
     }
 }

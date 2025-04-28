@@ -51,17 +51,29 @@
             b_disable = new Button();
             b_kill = new Button();
             b_startCode = new Button();
+            ms = new MenuStrip();
+            ms_joystick = new ToolStripMenuItem();
+            joystick_rescan = new ToolStripMenuItem();
+            toolStripSeparator1 = new ToolStripSeparator();
+            joystick_bypass = new ToolStripMenuItem();
+            joystick_configure = new ToolStripMenuItem();
+            ms_robot = new ToolStripMenuItem();
+            robot_customPacket = new ToolStripMenuItem();
+            robot_auton = new ToolStripComboBox();
+            ms_help = new ToolStripMenuItem();
+            help_about = new ToolStripMenuItem();
             ss.SuspendLayout();
             p_main.SuspendLayout();
             tlp_main.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nud_port).BeginInit();
+            ms.SuspendLayout();
             SuspendLayout();
             // 
             // ss
             // 
             ss.ImageScalingSize = new Size(18, 18);
             ss.Items.AddRange(new ToolStripItem[] { ss_label, ss_robot, ss_controller });
-            ss.Location = new Point(0, 436);
+            ss.Location = new Point(0, 450);
             ss.Name = "ss";
             ss.Size = new Size(819, 33);
             ss.SizingGrip = false;
@@ -103,10 +115,10 @@
             // 
             p_main.Controls.Add(tlp_main);
             p_main.Dock = DockStyle.Fill;
-            p_main.Location = new Point(0, 0);
+            p_main.Location = new Point(0, 25);
             p_main.Name = "p_main";
-            p_main.Padding = new Padding(10, 10, 10, 5);
-            p_main.Size = new Size(819, 436);
+            p_main.Padding = new Padding(10, 5, 10, 5);
+            p_main.Size = new Size(819, 425);
             p_main.TabIndex = 2;
             // 
             // tlp_main
@@ -136,7 +148,7 @@
             tlp_main.Controls.Add(b_kill, 4, 3);
             tlp_main.Controls.Add(b_startCode, 3, 6);
             tlp_main.Dock = DockStyle.Fill;
-            tlp_main.Location = new Point(10, 10);
+            tlp_main.Location = new Point(10, 5);
             tlp_main.Name = "tlp_main";
             tlp_main.RowCount = 8;
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 34F));
@@ -147,7 +159,7 @@
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 36F));
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 27F));
-            tlp_main.Size = new Size(799, 421);
+            tlp_main.Size = new Size(799, 415);
             tlp_main.TabIndex = 0;
             // 
             // console
@@ -164,7 +176,7 @@
             console.Name = "console";
             console.ReadOnly = true;
             console.ScrollBars = ScrollBars.Vertical;
-            console.Size = new Size(790, 150);
+            console.Size = new Size(790, 144);
             console.TabIndex = 0;
             console.TabStop = false;
             console.Text = "** Welcome to the S.H.A.R.K. Controller! **\r\n** Written by Kyle Rush **\r\n";
@@ -365,16 +377,98 @@
             b_startCode.UseVisualStyleBackColor = true;
             b_startCode.Click += b_startCode_Click;
             // 
+            // ms
+            // 
+            ms.ImageScalingSize = new Size(18, 18);
+            ms.Items.AddRange(new ToolStripItem[] { ms_joystick, ms_robot, ms_help });
+            ms.Location = new Point(0, 0);
+            ms.Name = "ms";
+            ms.Size = new Size(819, 25);
+            ms.TabIndex = 1;
+            ms.Text = "menuStrip1";
+            // 
+            // ms_joystick
+            // 
+            ms_joystick.DropDownItems.AddRange(new ToolStripItem[] { joystick_rescan, toolStripSeparator1, joystick_bypass, joystick_configure });
+            ms_joystick.Name = "ms_joystick";
+            ms_joystick.Size = new Size(64, 21);
+            ms_joystick.Text = "&Joystick";
+            // 
+            // joystick_rescan
+            // 
+            joystick_rescan.Name = "joystick_rescan";
+            joystick_rescan.Size = new Size(170, 24);
+            joystick_rescan.Text = "&Rescan";
+            joystick_rescan.Click += ss_controller_Click;
+            // 
+            // toolStripSeparator1
+            // 
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(167, 6);
+            // 
+            // joystick_bypass
+            // 
+            joystick_bypass.CheckOnClick = true;
+            joystick_bypass.Name = "joystick_bypass";
+            joystick_bypass.Size = new Size(170, 24);
+            joystick_bypass.Text = "&Bypass Joystick";
+            joystick_bypass.Click += joystick_bypass_Click;
+            // 
+            // joystick_configure
+            // 
+            joystick_configure.Name = "joystick_configure";
+            joystick_configure.Size = new Size(170, 24);
+            joystick_configure.Text = "&Configure/Test";
+            // 
+            // ms_robot
+            // 
+            ms_robot.DropDownItems.AddRange(new ToolStripItem[] { robot_customPacket, robot_auton });
+            ms_robot.Enabled = false;
+            ms_robot.Name = "ms_robot";
+            ms_robot.Size = new Size(56, 21);
+            ms_robot.Text = "&Robot";
+            // 
+            // robot_customPacket
+            // 
+            robot_customPacket.Name = "robot_customPacket";
+            robot_customPacket.Size = new Size(200, 24);
+            robot_customPacket.Text = "Send &Custom Packet";
+            robot_customPacket.Click += robot_customPacket_Click;
+            // 
+            // robot_auton
+            // 
+            robot_auton.DropDownStyle = ComboBoxStyle.DropDownList;
+            robot_auton.Items.AddRange(new object[] { "Autonomous 1", "Autonomous 2" });
+            robot_auton.Name = "robot_auton";
+            robot_auton.Size = new Size(121, 25);
+            robot_auton.Click += robot_auton_Click;
+            // 
+            // ms_help
+            // 
+            ms_help.DropDownItems.AddRange(new ToolStripItem[] { help_about });
+            ms_help.Name = "ms_help";
+            ms_help.Size = new Size(47, 21);
+            ms_help.Text = "&Help";
+            // 
+            // help_about
+            // 
+            help_about.Name = "help_about";
+            help_about.Size = new Size(198, 24);
+            help_about.Text = "&About";
+            help_about.Click += ss_label_Click;
+            // 
             // WIN_MAIN
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(819, 469);
+            ClientSize = new Size(819, 483);
             Controls.Add(p_main);
+            Controls.Add(ms);
             Controls.Add(ss);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             KeyPreview = true;
+            MainMenuStrip = ms;
             Name = "WIN_MAIN";
             StartPosition = FormStartPosition.CenterParent;
             Text = "S.H.A.R.K. Controller";
@@ -388,6 +482,8 @@
             tlp_main.ResumeLayout(false);
             tlp_main.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)nud_port).EndInit();
+            ms.ResumeLayout(false);
+            ms.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -415,5 +511,16 @@
         private TextBox console;
         private Button b_kill;
         private Button b_startCode;
+        private MenuStrip ms;
+        private ToolStripMenuItem ms_robot;
+        private ToolStripMenuItem robot_customPacket;
+        private ToolStripMenuItem ms_joystick;
+        private ToolStripMenuItem joystick_configure;
+        private ToolStripComboBox robot_auton;
+        private ToolStripMenuItem joystick_bypass;
+        private ToolStripMenuItem joystick_rescan;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripMenuItem ms_help;
+        private ToolStripMenuItem help_about;
     }
 }
