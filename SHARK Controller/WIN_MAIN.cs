@@ -1,4 +1,5 @@
 using SharpDX.XInput;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
@@ -406,7 +407,7 @@ namespace SHARK_Controller
             if (controller.IsConnected)
             {
                 ss_controller.Text = "Controller connected.";
-                ss_controller.BackColor = Color.LightGreen;
+                ss_controller.BackColor = Color.Green;
             }
             else
             {
@@ -471,13 +472,15 @@ namespace SHARK_Controller
 
         private void b_startCode_Click(object sender, EventArgs e)
         {
-            if (t_hostname.Text.ToLower() != "shark.local")
+            if (t_hostname.Text.ToLower() != "shark")
             {
                 MessageBox.Show("This is only supported on the offical S.H.A.R.K.!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            
+            Process sshProcess = Process.Start("cmd.exe");
+            sshProcess.StartInfo.Arguments = $"/c ssh pi@{t_hostname.Text}";
+            sshProcess.Start();
         }
     }
 }

@@ -101,8 +101,6 @@
             // 
             // p_main
             // 
-            p_main.BackgroundImage = (Image)resources.GetObject("p_main.BackgroundImage");
-            p_main.BackgroundImageLayout = ImageLayout.Stretch;
             p_main.Controls.Add(tlp_main);
             p_main.Dock = DockStyle.Fill;
             p_main.Location = new Point(0, 0);
@@ -158,7 +156,7 @@
             console.BackColor = SystemColors.InactiveCaptionText;
             console.BorderStyle = BorderStyle.FixedSingle;
             tlp_main.SetColumnSpan(console, 5);
-            console.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            console.Font = new Font("Lucida Sans Typewriter", 10.18868F, FontStyle.Regular, GraphicsUnit.Point, 0);
             console.ForeColor = Color.LawnGreen;
             console.Location = new Point(5, 266);
             console.Margin = new Padding(5);
