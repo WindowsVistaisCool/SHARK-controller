@@ -87,8 +87,8 @@
             ss_label.Image = (Image)resources.GetObject("ss_label.Image");
             ss_label.Margin = new Padding(8, 5, 50, 8);
             ss_label.Name = "ss_label";
-            ss_label.Size = new Size(225, 20);
-            ss_label.Text = "S.H.A.R.K. Controller v1.3-beta";
+            ss_label.Size = new Size(189, 20);
+            ss_label.Text = "S.H.A.R.K. Controller v1.3";
             ss_label.Click += ss_label_Click;
             // 
             // ss_robot

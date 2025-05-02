@@ -1,13 +1,14 @@
 using SharpDX.XInput;
 using System.Diagnostics;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace SHARK_Controller
 {
     public partial class WIN_MAIN : Form
     {
+        private readonly string VersionStr;
+
         private Controller? controller;
         private bool bypassJoystick = false;
 
@@ -35,6 +36,8 @@ namespace SHARK_Controller
         public WIN_MAIN()
         {
             InitializeComponent();
+
+            VersionStr = ss_label.Text!;
 
             cb_hostname.Text = MainSettings.Default.Hostname;
             foreach (var item in MainSettings.Default.SavedHosts)
