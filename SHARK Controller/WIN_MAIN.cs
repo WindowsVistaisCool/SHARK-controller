@@ -36,9 +36,17 @@ namespace SHARK_Controller
         {
             InitializeComponent();
 
-            t_hostname.Text = MainSettings.Default.Hostname;
+            cb_hostname.Text = MainSettings.Default.Hostname;
+            foreach (var item in MainSettings.Default.SavedHosts)
+            {
+                if (item == null)
+                {
+                    continue;
+                }
+                cb_hostname.Items.Add(item);
+            };
             nud_port.Value = MainSettings.Default.Port;
-            hostName = t_hostname.Text;
+            hostName = cb_hostname.Text;
             port = (int)nud_port.Value;
 
             //_ = new DarkModeForms.DarkModeCS(this)
@@ -75,7 +83,7 @@ namespace SHARK_Controller
                     c.Text = "Disconnected";
                     c.BackColor = Color.FromKnownColor(KnownColor.Control);
                 }),
-                TSMPresets.SetEnabled(t_hostname, true),
+                TSMPresets.SetEnabled(cb_hostname, true),
                 TSMPresets.SetEnabled(nud_port, true),
                 new ThreadSafeModification<Button>(b_teleop, (c) => {
                     c.Enabled = false;
@@ -126,6 +134,12 @@ namespace SHARK_Controller
                 connectControlModifications.Apply();
                 SetEnableButton(false);
                 WriteConsole($"[SOCKET] Connected to {hostName}:{port}.");
+
+                if (!MainSettings.Default.SavedHosts.Contains(hostName))
+                {
+                    MainSettings.Default.SavedHosts.Add(hostName);
+                    MainSettings.Default.Save();
+                }
 
                 HashSet<GamepadButtonFlags> pressedButtons = [];
 
@@ -373,7 +387,7 @@ namespace SHARK_Controller
 
         private void ConnectButtonClicked(object sender, EventArgs e)
         {
-            if (t_hostname.Text == "" || port < nud_port.Minimum || port > nud_port.Maximum)
+            if (cb_hostname.Text == "" || port < nud_port.Minimum || port > nud_port.Maximum)
             {
                 MessageBox.Show("Please enter a valid hostname and port.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 sessionActive = false;
@@ -381,9 +395,9 @@ namespace SHARK_Controller
             }
 
             sessionActive = !sessionActive;
-            hostName = t_hostname.Text;
+            hostName = cb_hostname.Text;
             port = (int)nud_port.Value;
-            t_hostname.Enabled = !sessionActive;
+            cb_hostname.Enabled = !sessionActive;
             nud_port.Enabled = !sessionActive;
             if (sessionActive)
             {
@@ -402,6 +416,11 @@ namespace SHARK_Controller
                 b_auton.BackColor = Color.FromKnownColor(KnownColor.Control);
                 b_disable.Enabled = false;
                 b_disable.BackColor = Color.FromKnownColor(KnownColor.Control);
+
+                if (!cb_hostname.Items.Contains(hostName))
+                {
+                    cb_hostname.Items.Add(hostName);
+                }
 
                 MainSettings.Default.Hostname = hostName;
                 MainSettings.Default.Port = port;
@@ -526,14 +545,14 @@ namespace SHARK_Controller
 
         private void b_startCode_Click(object sender, EventArgs e)
         {
-            if (t_hostname.Text.ToLower() != "shark")
+            if (cb_hostname.Text.ToLower() != "shark")
             {
                 MessageBox.Show("This is only supported on the offical S.H.A.R.K.!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             Process sshProcess = Process.Start("cmd.exe");
-            sshProcess.StartInfo.Arguments = $"/c ssh pi@{t_hostname.Text} \"cd /home/pi/robot && python3 Main.py\"";
+            sshProcess.StartInfo.Arguments = $"/c ssh pi@{cb_hostname.Text} \"cd /home/pi/robot && python3 Main.py\"";
             sshProcess.Start();
         }
 

@@ -37,21 +37,21 @@
             tlp_main = new TableLayoutPanel();
             console = new TextBox();
             ls_console = new Label();
-            t_hostname = new TextBox();
             l_hostname = new Label();
             l_port = new Label();
-            nud_port = new NumericUpDown();
             b_connect = new Button();
             b_clearConsole = new Button();
             robotInfo = new TextBox();
             ls_robotInfo = new Label();
             robotState = new TextBox();
-            l_status = new Label();
             b_disable = new Button();
             b_kill = new Button();
             b_startCode = new Button();
             b_teleop = new Button();
             b_auton = new Button();
+            l_status = new Label();
+            nud_port = new NumericUpDown();
+            cb_hostname = new ComboBox();
             ms = new MenuStrip();
             ms_joystick = new ToolStripMenuItem();
             joystick_rescan = new ToolStripMenuItem();
@@ -88,7 +88,7 @@
             ss_label.Margin = new Padding(8, 5, 50, 8);
             ss_label.Name = "ss_label";
             ss_label.Size = new Size(225, 20);
-            ss_label.Text = "S.H.A.R.K. Controller v1.2-beta";
+            ss_label.Text = "S.H.A.R.K. Controller v1.3-beta";
             ss_label.Click += ss_label_Click;
             // 
             // ss_robot
@@ -135,21 +135,21 @@
             tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 134F));
             tlp_main.Controls.Add(console, 0, 7);
             tlp_main.Controls.Add(ls_console, 0, 6);
-            tlp_main.Controls.Add(t_hostname, 4, 1);
             tlp_main.Controls.Add(l_hostname, 4, 0);
             tlp_main.Controls.Add(l_port, 5, 0);
-            tlp_main.Controls.Add(nud_port, 5, 1);
             tlp_main.Controls.Add(b_connect, 0, 0);
             tlp_main.Controls.Add(b_clearConsole, 5, 6);
             tlp_main.Controls.Add(robotInfo, 4, 4);
             tlp_main.Controls.Add(ls_robotInfo, 4, 3);
             tlp_main.Controls.Add(robotState, 0, 4);
-            tlp_main.Controls.Add(l_status, 0, 3);
             tlp_main.Controls.Add(b_disable, 2, 5);
             tlp_main.Controls.Add(b_kill, 5, 3);
             tlp_main.Controls.Add(b_startCode, 4, 6);
             tlp_main.Controls.Add(b_teleop, 1, 5);
             tlp_main.Controls.Add(b_auton, 0, 5);
+            tlp_main.Controls.Add(l_status, 0, 3);
+            tlp_main.Controls.Add(nud_port, 5, 1);
+            tlp_main.Controls.Add(cb_hostname, 4, 1);
             tlp_main.Dock = DockStyle.Fill;
             tlp_main.Location = new Point(10, 5);
             tlp_main.Name = "tlp_main";
@@ -157,8 +157,8 @@
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 34F));
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 38F));
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 7F));
-            tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 39F));
-            tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 37F));
+            tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 46F));
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 70F));
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 36F));
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 27F));
@@ -195,15 +195,6 @@
             ls_console.TabIndex = 1;
             ls_console.Text = "Console";
             // 
-            // t_hostname
-            // 
-            t_hostname.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            t_hostname.Location = new Point(427, 40);
-            t_hostname.Name = "t_hostname";
-            t_hostname.Size = new Size(256, 25);
-            t_hostname.TabIndex = 4;
-            t_hostname.Text = "QuackStation";
-            // 
             // l_hostname
             // 
             l_hostname.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
@@ -225,16 +216,6 @@
             l_port.Size = new Size(37, 20);
             l_port.TabIndex = 6;
             l_port.Text = "Port";
-            // 
-            // nud_port
-            // 
-            nud_port.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            nud_port.Location = new Point(689, 40);
-            nud_port.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
-            nud_port.Name = "nud_port";
-            nud_port.Size = new Size(134, 25);
-            nud_port.TabIndex = 7;
-            nud_port.Value = new decimal(new int[] { 8008, 0, 0, 0 });
             // 
             // b_connect
             // 
@@ -268,14 +249,14 @@
             robotInfo.BorderStyle = BorderStyle.FixedSingle;
             tlp_main.SetColumnSpan(robotInfo, 2);
             robotInfo.Font = new Font("Segoe UI", 10.18868F);
-            robotInfo.Location = new Point(429, 123);
+            robotInfo.Location = new Point(429, 114);
             robotInfo.Margin = new Padding(5);
             robotInfo.Multiline = true;
             robotInfo.Name = "robotInfo";
             robotInfo.ReadOnly = true;
             tlp_main.SetRowSpan(robotInfo, 2);
             robotInfo.ScrollBars = ScrollBars.Vertical;
-            robotInfo.Size = new Size(392, 97);
+            robotInfo.Size = new Size(392, 106);
             robotInfo.TabIndex = 9;
             robotInfo.TabStop = false;
             // 
@@ -284,7 +265,7 @@
             ls_robotInfo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             ls_robotInfo.AutoSize = true;
             ls_robotInfo.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
-            ls_robotInfo.Location = new Point(427, 98);
+            ls_robotInfo.Location = new Point(427, 89);
             ls_robotInfo.Name = "ls_robotInfo";
             ls_robotInfo.Size = new Size(135, 20);
             ls_robotInfo.TabIndex = 8;
@@ -297,7 +278,7 @@
             robotState.CausesValidation = false;
             tlp_main.SetColumnSpan(robotState, 3);
             robotState.Font = new Font("Segoe UI Black", 14.2641506F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            robotState.Location = new Point(3, 121);
+            robotState.Location = new Point(3, 112);
             robotState.Name = "robotState";
             robotState.ReadOnly = true;
             robotState.ShortcutsEnabled = false;
@@ -308,18 +289,6 @@
             robotState.TextAlign = HorizontalAlignment.Center;
             robotState.WordWrap = false;
             robotState.Enter += robotState_Enter;
-            // 
-            // l_status
-            // 
-            l_status.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            l_status.AutoSize = true;
-            tlp_main.SetColumnSpan(l_status, 3);
-            l_status.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
-            l_status.Location = new Point(3, 98);
-            l_status.Name = "l_status";
-            l_status.Size = new Size(95, 20);
-            l_status.TabIndex = 11;
-            l_status.Text = "Robot Status";
             // 
             // b_disable
             // 
@@ -343,9 +312,9 @@
             b_kill.Anchor = AnchorStyles.Right;
             b_kill.AutoSize = true;
             b_kill.Enabled = false;
-            b_kill.Location = new Point(713, 85);
+            b_kill.Location = new Point(713, 82);
             b_kill.Name = "b_kill";
-            b_kill.Size = new Size(110, 27);
+            b_kill.Size = new Size(110, 24);
             b_kill.TabIndex = 15;
             b_kill.Text = "Kill Robot Code";
             b_kill.UseVisualStyleBackColor = true;
@@ -395,6 +364,36 @@
             b_auton.UseVisualStyleBackColor = false;
             b_auton.Visible = false;
             b_auton.Click += b_auton_Click;
+            // 
+            // l_status
+            // 
+            l_status.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            l_status.AutoSize = true;
+            l_status.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
+            l_status.Location = new Point(3, 89);
+            l_status.Name = "l_status";
+            l_status.Size = new Size(95, 20);
+            l_status.TabIndex = 11;
+            l_status.Text = "Robot Status";
+            // 
+            // nud_port
+            // 
+            nud_port.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            nud_port.Location = new Point(689, 40);
+            nud_port.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
+            nud_port.Name = "nud_port";
+            nud_port.Size = new Size(134, 25);
+            nud_port.TabIndex = 7;
+            nud_port.Value = new decimal(new int[] { 8008, 0, 0, 0 });
+            // 
+            // cb_hostname
+            // 
+            cb_hostname.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            cb_hostname.FormattingEnabled = true;
+            cb_hostname.Location = new Point(427, 40);
+            cb_hostname.Name = "cb_hostname";
+            cb_hostname.Size = new Size(256, 25);
+            cb_hostname.TabIndex = 18;
             // 
             // ms
             // 
@@ -519,7 +518,6 @@
         private ToolStripStatusLabel ss_robot;
         private ToolStripStatusLabel ss_controller;
         private Label l_hostname;
-        private TextBox t_hostname;
         private TextBox robotInfo;
         private Label ls_console;
         private Label l_port;
@@ -545,5 +543,6 @@
         private ToolStripMenuItem ms_help;
         private ToolStripMenuItem help_about;
         private Button b_auton;
+        private ComboBox cb_hostname;
     }
 }
