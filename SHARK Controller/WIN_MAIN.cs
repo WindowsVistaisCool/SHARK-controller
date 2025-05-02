@@ -21,6 +21,7 @@ namespace SHARK_Controller
         private bool socketConnected = false;
 
         private bool teleopRequest = false;
+        private bool autoRequest = false;
         private bool disableRequest = false;
         private bool killRequest = false;
 
@@ -55,7 +56,8 @@ namespace SHARK_Controller
                     ms_robot.Enabled = true;
                 }),
                 TSMPresets.SetEnabled(b_kill, true),
-                TSMPresets.SetVisible(b_enable, true),
+                TSMPresets.SetVisible(b_teleop, true),
+                TSMPresets.SetVisible(b_auton, true),
                 TSMPresets.SetVisible(b_disable, true),
             ]);
 
@@ -75,7 +77,12 @@ namespace SHARK_Controller
                 }),
                 TSMPresets.SetEnabled(t_hostname, true),
                 TSMPresets.SetEnabled(nud_port, true),
-                new ThreadSafeModification<Button>(b_enable, (c) => {
+                new ThreadSafeModification<Button>(b_teleop, (c) => {
+                    c.Enabled = false;
+                    c.Visible = false;
+                    c.BackColor = Color.FromKnownColor(KnownColor.Control);
+                }),
+                new ThreadSafeModification<Button>(b_auton, (c) => {
                     c.Enabled = false;
                     c.Visible = false;
                     c.BackColor = Color.FromKnownColor(KnownColor.Control);
@@ -131,6 +138,12 @@ namespace SHARK_Controller
                     {
                         WriteData(stream, "tele");
                         teleopRequest = false;
+                        continue;
+                    }
+                    if (autoRequest)
+                    {
+                        WriteData(stream, "auto");
+                        autoRequest = false;
                         continue;
                     }
                     if (disableRequest)
@@ -328,10 +341,19 @@ namespace SHARK_Controller
         private void SetEnableButton(bool enable)
         {
             new TSMCollection([
-                new ThreadSafeModification<Button>(b_enable, (c) =>
+                new ThreadSafeModification<Button>(b_teleop, (c) =>
                 {
-                    c.BackColor = enable ? Color.LightGreen : Color.FromKnownColor(KnownColor.Control);
-                    c.Enabled = !enable;
+                    c.BackColor = isInTele ? Color.LightGreen : Color.FromKnownColor(KnownColor.Control);
+                    c.Enabled = !isInTele;
+                    if (enable)
+                    {
+                        ActiveControl = b_disable;
+                    }
+                }),
+                new ThreadSafeModification<Button>(b_auton, (c) =>
+                {
+                    c.BackColor = enable && !isInTele ? Color.Khaki : Color.FromKnownColor(KnownColor.Control);
+                    c.Enabled = !enable || isInTele;
                     if (enable)
                     {
                         ActiveControl = b_disable;
@@ -374,8 +396,10 @@ namespace SHARK_Controller
                 robotState.BackColor = Color.SandyBrown;
                 b_startCode.Visible = false;
                 b_connect.Enabled = false;
-                b_enable.Enabled = false;
-                b_enable.BackColor = Color.FromKnownColor(KnownColor.Control);
+                b_teleop.Enabled = false;
+                b_teleop.BackColor = Color.FromKnownColor(KnownColor.Control);
+                b_auton.Enabled = false;
+                b_auton.BackColor = Color.FromKnownColor(KnownColor.Control);
                 b_disable.Enabled = false;
                 b_disable.BackColor = Color.FromKnownColor(KnownColor.Control);
 
@@ -453,10 +477,15 @@ namespace SHARK_Controller
             ActiveControl = null;
         }
 
-        private void b_enable_Click(object sender, EventArgs e)
+        private void b_teleop_Click(object sender, EventArgs e)
         {
             teleopRequest = true;
 
+        }
+
+        private void b_auton_Click(object sender, EventArgs e)
+        {
+            autoRequest = true;
         }
 
         private void b_disable_Click(object sender, EventArgs e)
@@ -483,9 +512,9 @@ namespace SHARK_Controller
                 //e.Handled = true;
             }
 
-            if (b_enable.Enabled && pressedKeys.Contains(Keys.OemPipe) && pressedKeys.Contains(Keys.Oem6) && pressedKeys.Contains(Keys.Oem4))
+            if (b_teleop.Enabled && pressedKeys.Contains(Keys.OemPipe) && pressedKeys.Contains(Keys.Oem6) && pressedKeys.Contains(Keys.Oem4))
             {
-                b_enable.PerformClick();
+                b_teleop.PerformClick();
                 e.Handled = true;
             }
         }
@@ -531,4 +560,5 @@ namespace SHARK_Controller
             }
         }
     }
+
 }
