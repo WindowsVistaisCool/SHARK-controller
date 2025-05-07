@@ -60,5 +60,17 @@ namespace SHARK_Controller {
                 this["SavedHosts"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UsingBackground {
+            get {
+                return ((bool)(this["UsingBackground"]));
+            }
+            set {
+                this["UsingBackground"] = value;
+            }
+        }
     }
 }

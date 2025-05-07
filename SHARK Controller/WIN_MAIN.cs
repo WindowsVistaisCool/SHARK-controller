@@ -60,6 +60,7 @@ namespace SHARK_Controller
             nud_port.Value = MainSettings.Default.Port;
             hostName = cb_hostname.Text;
             port = (int)nud_port.Value;
+            backgroundPrefs.Checked = MainSettings.Default.UsingBackground;
 
             //_ = new DarkModeForms.DarkModeCS(this)
             //{
@@ -673,6 +674,8 @@ namespace SHARK_Controller
         private void backgroundPrefs_CheckedChanged(object sender, EventArgs e)
         {
             p_main.BackgroundImage = backgroundPrefs.Checked ? GetImageFromBytes(Properties.Resources.Background) : null;
+            MainSettings.Default.UsingBackground = backgroundPrefs.Checked;
+            MainSettings.Default.Save();
         }
 
         private static Image GetImageFromBytes(byte[] bytes)
