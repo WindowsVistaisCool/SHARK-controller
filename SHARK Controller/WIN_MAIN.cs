@@ -1,6 +1,4 @@
 using SharpDX.XInput;
-using System.CodeDom.Compiler;
-using System.CodeDom;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
@@ -43,8 +41,11 @@ namespace SHARK_Controller
         {
             InitializeComponent();
 
-            VersionStr = ss_label.Text!;
+            VersionStr = Properties.Resources.AppVersion;
+            ss_label.Text = $"S.H.A.R.K. Controller {VersionStr}";
             defaultConsoleColor = console.ForeColor;
+
+            ss_label.Image = GetImageFromBytes(Properties.Resources.AppPNG);
 
             cb_hostname.Text = MainSettings.Default.Hostname;
             foreach (var item in MainSettings.Default.SavedHosts)
@@ -336,12 +337,14 @@ namespace SHARK_Controller
                                         robot_auton.Items.Add(item);
                                     }).Apply();
                                 }
-                            } else
+                            }
+                            else
                             {
                                 throw new Exception("No [AUTONS] found in message.");
                             }
                             WriteRobotInfo($"{splitted[0].Replace("\n", "\r\n")}");
-                        } catch (Exception ex)
+                        }
+                        catch (Exception ex)
                         {
                             WriteConsole($"[RECIEVER] Error: {ex.Message}", Color.Red);
                             WriteRobotInfo($"{message[12..].Replace("\n", "\r\n")}");
@@ -665,6 +668,16 @@ namespace SHARK_Controller
             {
                 ss_controller_Click(null, null);
             }
+        }
+
+        private void backgroundPrefs_CheckedChanged(object sender, EventArgs e)
+        {
+            p_main.BackgroundImage = backgroundPrefs.Checked ? GetImageFromBytes(Properties.Resources.Background) : null;
+        }
+
+        private static Image GetImageFromBytes(byte[] bytes)
+        {
+            return Image.FromStream(new MemoryStream(bytes));
         }
     }
 

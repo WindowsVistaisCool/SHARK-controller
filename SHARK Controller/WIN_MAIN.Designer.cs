@@ -53,9 +53,11 @@
             cb_hostname = new ComboBox();
             console = new RichTextBox();
             ms = new MenuStrip();
+            ms_prefs = new ToolStripMenuItem();
+            backgroundPrefs = new ToolStripMenuItem();
             ms_joystick = new ToolStripMenuItem();
             joystick_rescan = new ToolStripMenuItem();
-            toolStripSeparator1 = new ToolStripSeparator();
+            tss1 = new ToolStripSeparator();
             joystick_bypass = new ToolStripMenuItem();
             joystick_configure = new ToolStripMenuItem();
             ms_auton = new ToolStripMenuItem();
@@ -83,11 +85,10 @@
             // ss_label
             // 
             ss_label.Font = new Font("Segoe UI", 10F);
-            ss_label.Image = (Image)resources.GetObject("ss_label.Image");
             ss_label.Margin = new Padding(8, 5, 50, 8);
             ss_label.Name = "ss_label";
-            ss_label.Size = new Size(189, 20);
-            ss_label.Text = "S.H.A.R.K. Controller v1.4";
+            ss_label.Size = new Size(173, 20);
+            ss_label.Text = "S.H.A.R.K. Controller vX.X";
             ss_label.Click += ss_label_Click;
             // 
             // ss_robot
@@ -395,16 +396,31 @@
             // ms
             // 
             ms.ImageScalingSize = new Size(18, 18);
-            ms.Items.AddRange(new ToolStripItem[] { ms_joystick, ms_auton, ms_help });
+            ms.Items.AddRange(new ToolStripItem[] { ms_prefs, ms_joystick, ms_auton, ms_help });
             ms.Location = new Point(0, 0);
             ms.Name = "ms";
             ms.Size = new Size(846, 25);
             ms.TabIndex = 1;
             ms.Text = "menuStrip1";
             // 
+            // ms_prefs
+            // 
+            ms_prefs.DropDownItems.AddRange(new ToolStripItem[] { backgroundPrefs });
+            ms_prefs.Name = "ms_prefs";
+            ms_prefs.Size = new Size(88, 21);
+            ms_prefs.Text = "Preferences";
+            // 
+            // backgroundPrefs
+            // 
+            backgroundPrefs.CheckOnClick = true;
+            backgroundPrefs.Name = "backgroundPrefs";
+            backgroundPrefs.Size = new Size(217, 24);
+            backgroundPrefs.Text = "Use Background Image";
+            backgroundPrefs.CheckedChanged += backgroundPrefs_CheckedChanged;
+            // 
             // ms_joystick
             // 
-            ms_joystick.DropDownItems.AddRange(new ToolStripItem[] { joystick_rescan, toolStripSeparator1, joystick_bypass, joystick_configure });
+            ms_joystick.DropDownItems.AddRange(new ToolStripItem[] { joystick_rescan, tss1, joystick_bypass, joystick_configure });
             ms_joystick.Name = "ms_joystick";
             ms_joystick.Size = new Size(64, 21);
             ms_joystick.Text = "&Joystick";
@@ -416,10 +432,10 @@
             joystick_rescan.Text = "&Rescan";
             joystick_rescan.Click += ss_controller_Click;
             // 
-            // toolStripSeparator1
+            // tss1
             // 
-            toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(167, 6);
+            tss1.Name = "tss1";
+            tss1.Size = new Size(167, 6);
             // 
             // joystick_bypass
             // 
@@ -463,7 +479,7 @@
             // help_about
             // 
             help_about.Name = "help_about";
-            help_about.Size = new Size(198, 24);
+            help_about.Size = new Size(117, 24);
             help_about.Text = "&About";
             help_about.Click += ss_label_Click;
             // 
@@ -526,11 +542,13 @@
         private ToolStripComboBox robot_auton;
         private ToolStripMenuItem joystick_bypass;
         private ToolStripMenuItem joystick_rescan;
-        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripSeparator tss1;
         private ToolStripMenuItem ms_help;
         private ToolStripMenuItem help_about;
         private Button b_auton;
         private ComboBox cb_hostname;
         private RichTextBox console;
+        private ToolStripMenuItem ms_prefs;
+        private ToolStripMenuItem backgroundPrefs;
     }
 }
