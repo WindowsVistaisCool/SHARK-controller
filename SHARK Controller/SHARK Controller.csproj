@@ -7,11 +7,19 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>ico.ico</ApplicationIcon>
+    <ApplicationIcon>betterbetter.ico</ApplicationIcon>
+    <PackageIcon>sharkico.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="ico.ico" />
+    <Content Include="betterbetter.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\assets\sharkico.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

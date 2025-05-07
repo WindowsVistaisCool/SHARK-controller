@@ -1,4 +1,6 @@
 using SharpDX.XInput;
+using System.CodeDom.Compiler;
+using System.CodeDom;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
@@ -8,6 +10,8 @@ namespace SHARK_Controller
     public partial class WIN_MAIN : Form
     {
         private readonly string VersionStr;
+
+        private readonly Color defaultConsoleColor;
 
         private Controller? controller;
         private bool bypassJoystick = false;
@@ -25,8 +29,10 @@ namespace SHARK_Controller
         private bool autoRequest = false;
         private bool disableRequest = false;
         private bool killRequest = false;
+        private bool changeAutoRequest = false;
 
         private bool isInTele = false;
+        private string selectedAutonName = "";
 
         private readonly TSMCollection connectControlModifications = new();
         private readonly TSMCollection disconnectControlModifications = new();
@@ -38,6 +44,7 @@ namespace SHARK_Controller
             InitializeComponent();
 
             VersionStr = ss_label.Text!;
+            defaultConsoleColor = console.ForeColor;
 
             cb_hostname.Text = MainSettings.Default.Hostname;
             foreach (var item in MainSettings.Default.SavedHosts)
@@ -47,7 +54,8 @@ namespace SHARK_Controller
                     continue;
                 }
                 cb_hostname.Items.Add(item);
-            };
+            }
+            ;
             nud_port.Value = MainSettings.Default.Port;
             hostName = cb_hostname.Text;
             port = (int)nud_port.Value;
@@ -64,7 +72,8 @@ namespace SHARK_Controller
                 {
                     c.Enabled = true;
                     ActiveControl = c;
-                    ms_robot.Enabled = true;
+                    ms_auton.Enabled = true;
+                    robot_auton.Items.Clear();
                 }),
                 TSMPresets.SetEnabled(b_kill, true),
                 TSMPresets.SetVisible(b_teleop, true),
@@ -73,8 +82,9 @@ namespace SHARK_Controller
             ]);
 
             disconnectControlModifications = new TSMCollection([
-                new ThreadSafeModification<TextBox>(console, (c) => {
-                    ms_robot.Enabled = false;                    c.AppendText("[SHARK UI] Return from session.\r\n");
+                new ThreadSafeModification<RichTextBox>(console, (c) => {
+                    ms_auton.Enabled = false;
+                    c.AppendText("[SHARK UI] Return from session.\r\n");
                     c.SelectionStart = c.Text.Length;
                     c.ScrollToCaret();
                 }),
@@ -119,7 +129,7 @@ namespace SHARK_Controller
                 }
                 else if (bypassJoystick)
                 {
-                    WriteConsole("[SOCKET] WARNING! Bypassing joystick input.");
+                    WriteConsole("[SOCKET] WARNING! Bypassing joystick input.", Color.Orange);
                 }
 
                 client.Connect(hostName, port);
@@ -133,10 +143,14 @@ namespace SHARK_Controller
                 };
                 socketReciever.Start();
 
+                Thread.Sleep(100);
+
+                WriteData(stream, $"init,{VersionStr}");
+
                 // update UI elements (safely)
                 connectControlModifications.Apply();
                 SetEnableButton(false);
-                WriteConsole($"[SOCKET] Connected to {hostName}:{port}.");
+                WriteConsole($"[SOCKET] Connected to {hostName}:{port}.", Color.Green);
 
                 if (!MainSettings.Default.SavedHosts.Contains(hostName))
                 {
@@ -171,12 +185,20 @@ namespace SHARK_Controller
                     }
                     if (killRequest)
                     {
-                        WriteConsole("Killing Robot.");
+                        WriteConsole("Killing Robot.", Color.LightCoral);
                         killRequest = false;
                         WriteData(stream, "exit");
                         Thread.Sleep(100);
                         break;
                     }
+                    if (changeAutoRequest)
+                    {
+                        WriteData(stream, "se-auto," + selectedAutonName);
+                        changeAutoRequest = false;
+                        continue;
+                    }
+
+
                     if (bypassJoystick)
                     {
                         continue;
@@ -227,12 +249,12 @@ namespace SHARK_Controller
             }
             catch (Exception ex)
             {
-                WriteConsole($"[SOCKET] Error: {ex.Message}");
+                WriteConsole($"[SOCKET] Error: {ex.Message}", Color.Red);
             }
             finally
             {
                 client.Close();
-                WriteConsole("[SOCKET] Connection closed.");
+                WriteConsole("[SOCKET] Connection closed.", Color.Pink);
             }
             sessionActive = false;
             socketConnected = false;
@@ -246,7 +268,7 @@ namespace SHARK_Controller
         {
             try
             {
-                WriteConsole($"[RECIEVER] Reciever connected.");
+                WriteConsole($"[RECIEVER] Connected.", Color.Green);
                 while (socketConnected)
                 {
                     byte[] buffer = new byte[256];
@@ -293,14 +315,68 @@ namespace SHARK_Controller
                             isInTele = false;
                             SetEnableButton(true);
                         }
+                        continue;
                     }
                     else if (message.StartsWith("[ROBOTINFO] "))
                     {
-                        WriteRobotInfo($"{message[12..].Replace("\n", "\r\n")}");
+                        try
+                        {
+                            var splitted = message.Split("[AUTONS]");
+                            if (splitted.Length > 1)
+                            {
+                                var autonList = splitted[1].Split(',');
+                                foreach (var item in autonList)
+                                {
+                                    if (item == "")
+                                    {
+                                        continue;
+                                    }
+                                    new ThreadSafeModification<RichTextBox>(console, (c) =>
+                                    {
+                                        robot_auton.Items.Add(item);
+                                    }).Apply();
+                                }
+                            } else
+                            {
+                                throw new Exception("No [AUTONS] found in message.");
+                            }
+                            WriteRobotInfo($"{splitted[0].Replace("\n", "\r\n")}");
+                        } catch (Exception ex)
+                        {
+                            WriteConsole($"[RECIEVER] Error: {ex.Message}", Color.Red);
+                            WriteRobotInfo($"{message[12..].Replace("\n", "\r\n")}");
+                        }
                     }
                     else
                     {
-                        WriteConsole($"{message}");
+                        Color color = defaultConsoleColor;
+
+                        if (message.StartsWith("%GREEN%"))
+                        {
+                            message = message.Replace("%GREEN%", "");
+                            color = Color.LawnGreen;
+                        }
+                        else if (message.StartsWith("%ORANGE%"))
+                        {
+                            message = message.Replace("%ORANGE%", "");
+                            color = Color.Orange;
+                        }
+                        else if (message.StartsWith("%BLUE%"))
+                        {
+                            message = message.Replace("%BLUE%", "");
+                            color = Color.Blue;
+                        }
+                        else if (message.StartsWith("%YELLOW%"))
+                        {
+                            message = message.Replace("%YELLOW%", "");
+                            color = Color.Yellow;
+                        }
+                        else if (message.StartsWith("%RED%"))
+                        {
+                            message = message.Replace("%RED%", "");
+                            color = Color.Red;
+                        }
+                        WriteConsole(message, color);
                     }
                 }
             }
@@ -333,18 +409,26 @@ namespace SHARK_Controller
             stream.Write(bytes, 0, bytes.Length);
         }
 
-        private void WriteConsole(string message)
+        private void WriteConsole(string message, Color color)
         {
-            new ThreadSafeModification<TextBox>(console, (c) =>
+            new ThreadSafeModification<RichTextBox>(console, (c) =>
             {
                 try
                 {
-                    c.AppendText(message + "\r\n");
-                    c.SelectionStart = c.Text.Length;
-                    c.ScrollToCaret();
+                    c.SelectionStart = c.Text.Length; // Move to the end of the text
+                    c.SelectionLength = 0; // Ensure no text is selected
+                    c.SelectionColor = color; // Set the selection color to orange
+                    c.AppendText(message + "\r\n"); // Append the message
+                    c.SelectionStart = c.Text.Length; // Move to the end of the text again
+                    c.SelectionColor = c.ForeColor; // Reset the selection color to default
+                    c.ScrollToCaret(); // Scroll to the caret
                 }
                 catch { }
             }).Apply();
+        }
+        private void WriteConsole(string message)
+        {
+            WriteConsole(message, defaultConsoleColor);
         }
 
         private void WriteRobotInfo(string message)
@@ -564,9 +648,10 @@ namespace SHARK_Controller
             new WIN_CustomPacket().ShowDialog();
         }
 
-        private void robot_auton_Click(object sender, EventArgs e)
+        private void robot_auton_TextUpdate(object sender, EventArgs e)
         {
-
+            selectedAutonName = robot_auton.Text;
+            changeAutoRequest = true;
         }
 
         private void joystick_bypass_Click(object sender, EventArgs e)

@@ -35,7 +35,6 @@
             ss_controller = new ToolStripStatusLabel();
             p_main = new Panel();
             tlp_main = new TableLayoutPanel();
-            console = new TextBox();
             ls_console = new Label();
             l_hostname = new Label();
             l_port = new Label();
@@ -52,14 +51,14 @@
             l_status = new Label();
             nud_port = new NumericUpDown();
             cb_hostname = new ComboBox();
+            console = new RichTextBox();
             ms = new MenuStrip();
             ms_joystick = new ToolStripMenuItem();
             joystick_rescan = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
             joystick_bypass = new ToolStripMenuItem();
             joystick_configure = new ToolStripMenuItem();
-            ms_robot = new ToolStripMenuItem();
-            robot_customPacket = new ToolStripMenuItem();
+            ms_auton = new ToolStripMenuItem();
             robot_auton = new ToolStripComboBox();
             ms_help = new ToolStripMenuItem();
             help_about = new ToolStripMenuItem();
@@ -88,7 +87,7 @@
             ss_label.Margin = new Padding(8, 5, 50, 8);
             ss_label.Name = "ss_label";
             ss_label.Size = new Size(189, 20);
-            ss_label.Text = "S.H.A.R.K. Controller v1.3";
+            ss_label.Text = "S.H.A.R.K. Controller v1.4";
             ss_label.Click += ss_label_Click;
             // 
             // ss_robot
@@ -133,7 +132,6 @@
             tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 27F));
             tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 262F));
             tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 134F));
-            tlp_main.Controls.Add(console, 0, 7);
             tlp_main.Controls.Add(ls_console, 0, 6);
             tlp_main.Controls.Add(l_hostname, 4, 0);
             tlp_main.Controls.Add(l_port, 5, 0);
@@ -150,6 +148,7 @@
             tlp_main.Controls.Add(l_status, 0, 3);
             tlp_main.Controls.Add(nud_port, 5, 1);
             tlp_main.Controls.Add(cb_hostname, 4, 1);
+            tlp_main.Controls.Add(console, 0, 7);
             tlp_main.Dock = DockStyle.Fill;
             tlp_main.Location = new Point(10, 5);
             tlp_main.Name = "tlp_main";
@@ -164,25 +163,6 @@
             tlp_main.RowStyles.Add(new RowStyle(SizeType.Absolute, 27F));
             tlp_main.Size = new Size(826, 415);
             tlp_main.TabIndex = 0;
-            // 
-            // console
-            // 
-            console.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            console.BackColor = SystemColors.InactiveCaptionText;
-            console.BorderStyle = BorderStyle.FixedSingle;
-            tlp_main.SetColumnSpan(console, 6);
-            console.Font = new Font("Lucida Sans Typewriter", 10.18868F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            console.ForeColor = Color.LawnGreen;
-            console.Location = new Point(5, 266);
-            console.Margin = new Padding(5);
-            console.Multiline = true;
-            console.Name = "console";
-            console.ReadOnly = true;
-            console.ScrollBars = ScrollBars.Vertical;
-            console.Size = new Size(816, 144);
-            console.TabIndex = 0;
-            console.TabStop = false;
-            console.Text = "** Welcome to the S.H.A.R.K. Controller! **\r\n** Written by Kyle Rush **\r\n";
             // 
             // ls_console
             // 
@@ -330,6 +310,7 @@
             b_startCode.TabIndex = 16;
             b_startCode.Text = "Start Robot Code (SSH)";
             b_startCode.UseVisualStyleBackColor = true;
+            b_startCode.Visible = false;
             b_startCode.Click += b_startCode_Click;
             // 
             // b_teleop
@@ -395,10 +376,26 @@
             cb_hostname.Size = new Size(256, 25);
             cb_hostname.TabIndex = 18;
             // 
+            // console
+            // 
+            console.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            console.BackColor = Color.FromArgb(28, 28, 28);
+            console.BorderStyle = BorderStyle.FixedSingle;
+            tlp_main.SetColumnSpan(console, 6);
+            console.Font = new Font("Cascadia Code", 10.15F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            console.ForeColor = SystemColors.InactiveBorder;
+            console.Location = new Point(3, 264);
+            console.Name = "console";
+            console.ReadOnly = true;
+            console.ScrollBars = RichTextBoxScrollBars.Vertical;
+            console.Size = new Size(820, 148);
+            console.TabIndex = 19;
+            console.Text = "**Welcome to the S.H.A.R.K. controller!**\n**Written by Kyle Rush**";
+            // 
             // ms
             // 
             ms.ImageScalingSize = new Size(18, 18);
-            ms.Items.AddRange(new ToolStripItem[] { ms_joystick, ms_robot, ms_help });
+            ms.Items.AddRange(new ToolStripItem[] { ms_joystick, ms_auton, ms_help });
             ms.Location = new Point(0, 0);
             ms.Name = "ms";
             ms.Size = new Size(846, 25);
@@ -438,31 +435,23 @@
             joystick_configure.Name = "joystick_configure";
             joystick_configure.Size = new Size(170, 24);
             joystick_configure.Text = "&Configure/Test";
+            joystick_configure.Visible = false;
             // 
-            // ms_robot
+            // ms_auton
             // 
-            ms_robot.DropDownItems.AddRange(new ToolStripItem[] { robot_customPacket, robot_auton });
-            ms_robot.Enabled = false;
-            ms_robot.Name = "ms_robot";
-            ms_robot.Size = new Size(56, 21);
-            ms_robot.Text = "&Robot";
-            // 
-            // robot_customPacket
-            // 
-            robot_customPacket.Enabled = false;
-            robot_customPacket.Name = "robot_customPacket";
-            robot_customPacket.Size = new Size(200, 24);
-            robot_customPacket.Text = "Send &Custom Packet";
-            robot_customPacket.Click += robot_customPacket_Click;
+            ms_auton.DropDownItems.AddRange(new ToolStripItem[] { robot_auton });
+            ms_auton.Enabled = false;
+            ms_auton.Name = "ms_auton";
+            ms_auton.Size = new Size(132, 21);
+            ms_auton.Text = "Select &Autonomous";
             // 
             // robot_auton
             // 
             robot_auton.DropDownStyle = ComboBoxStyle.DropDownList;
-            robot_auton.Enabled = false;
             robot_auton.Items.AddRange(new object[] { "Autonomous 1", "Autonomous 2" });
             robot_auton.Name = "robot_auton";
             robot_auton.Size = new Size(121, 25);
-            robot_auton.Click += robot_auton_Click;
+            robot_auton.SelectedIndexChanged += robot_auton_TextUpdate;
             // 
             // ms_help
             // 
@@ -474,7 +463,7 @@
             // help_about
             // 
             help_about.Name = "help_about";
-            help_about.Size = new Size(117, 24);
+            help_about.Size = new Size(198, 24);
             help_about.Text = "&About";
             help_about.Click += ss_label_Click;
             // 
@@ -486,12 +475,12 @@
             Controls.Add(p_main);
             Controls.Add(ms);
             Controls.Add(ss);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             KeyPreview = true;
             MainMenuStrip = ms;
+            MinimumSize = new Size(862, 524);
             Name = "WIN_MAIN";
-            StartPosition = FormStartPosition.CenterParent;
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "S.H.A.R.K. Controller";
             FormClosing += WIN_MAIN_FormClosing;
             KeyDown += WIN_MAIN_KeyDown;
@@ -528,12 +517,10 @@
         private TextBox robotState;
         private Button b_teleop;
         private Button b_disable;
-        private TextBox console;
         private Button b_kill;
         private Button b_startCode;
         private MenuStrip ms;
-        private ToolStripMenuItem ms_robot;
-        private ToolStripMenuItem robot_customPacket;
+        private ToolStripMenuItem ms_auton;
         private ToolStripMenuItem ms_joystick;
         private ToolStripMenuItem joystick_configure;
         private ToolStripComboBox robot_auton;
@@ -544,5 +531,6 @@
         private ToolStripMenuItem help_about;
         private Button b_auton;
         private ComboBox cb_hostname;
+        private RichTextBox console;
     }
 }
