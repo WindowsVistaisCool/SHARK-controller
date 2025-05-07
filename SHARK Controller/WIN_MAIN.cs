@@ -1,5 +1,6 @@
 using SharpDX.XInput;
 using System.Diagnostics;
+using System.Drawing;
 using System.Net.Sockets;
 using System.Text;
 
@@ -47,6 +48,10 @@ namespace SHARK_Controller
 
             ss_label.Image = GetImageFromBytes(Properties.Resources.AppPNG);
 
+            AddConsoleText("** Welcome to the S.H.A.R.K. Controller! **", Color.DarkCyan);
+            AddConsoleText($"** Version {VersionStr} **", Color.BlueViolet);
+            AddConsoleText("** Written by Kyle Rush **", Color.BlueViolet);
+
             cb_hostname.Text = MainSettings.Default.Hostname;
             foreach (var item in MainSettings.Default.SavedHosts)
             {
@@ -67,7 +72,7 @@ namespace SHARK_Controller
             //    ColorMode = DarkModeForms.DarkModeCS.DisplayMode.DarkMode,
             //};
 
-            ss_controller_Click(null, null);
+            ss_controller_Click(null, null); // invoke a controller scan
 
             connectControlModifications = new TSMCollection([
                 new ThreadSafeModification<Button>(b_connect, (c) =>
@@ -116,7 +121,7 @@ namespace SHARK_Controller
                     c.BackColor = Color.FromKnownColor(KnownColor.Control);
                 }),
                 TSMPresets.SetEnabled(b_kill, false),
-                TSMPresets.SetVisible(b_startCode, true)
+                //TSMPresets.SetVisible(b_startCode, true)
             ]);
         }
 
@@ -517,7 +522,7 @@ namespace SHARK_Controller
                 MainSettings.Default.Port = port;
                 MainSettings.Default.Save();
 
-                AddConsoleText("[SHARK UI] New session created.");
+                AddConsoleText("[SHARK UI] New session created.", Color.AliceBlue);
                 socketThread = new Thread(RunSocketThread)
                 {
                     IsBackground = true
@@ -528,7 +533,7 @@ namespace SHARK_Controller
             {
                 socketConnected = false;
                 b_connect.Text = "Connect to Robot";
-                AddConsoleText("[SHARK UI] Return from session.");
+                AddConsoleText("[SHARK UI] Return from session.", Color.AliceBlue);
             }
         }
         private void clearConsole_Click(object sender, EventArgs e)
@@ -536,28 +541,32 @@ namespace SHARK_Controller
             console.Text = "";
         }
 
-        private void AddConsoleText(string message)
+        private void AddConsoleText(string message, Color color)
         {
-            console.Text += message + "\r\n";
-            console.SelectionStart = console.Text.Length;
-            console.ScrollToCaret();
+            console.SelectionStart = console.Text.Length; // Move to the end of the text
+            console.SelectionLength = 0; // Ensure no text is selected
+            console.SelectionColor = color; // Set the selection color to orange
+            console.AppendText(message + "\r\n"); // Append the message
+            console.SelectionStart = console.Text.Length; // Move to the end of the text again
+            console.SelectionColor = console.ForeColor; // Reset the selection color to default
+            console.ScrollToCaret(); // Scroll to the caret
         }
 
         private void ss_label_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Written by Kyle Rush.", "About SHARK Controller", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"Written by Kyle Rush.\nVersion {VersionStr}", "About SHARK Controller", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void ss_controller_Click(object? sender, EventArgs? e)
         {
             if (joystick_bypass.Checked)
             {
-                if (e != null)
+                if (e != null) // if this click came from a real control
                 {
                     bypassJoystick = false;
                     joystick_bypass.Checked = false;
                 }
-                else
+                else // respect the bypass
                 {
                     return;
                 }
@@ -572,7 +581,7 @@ namespace SHARK_Controller
             {
                 ss_controller.Text = "Controller disconnected.";
                 ss_controller.BackColor = Color.Red;
-                AddConsoleText("[SHARK UI] WARNING! No controller detected.\r\nClick the controller text in the status bar to rescan.");
+                AddConsoleText("[SHARK UI] WARNING! No controller detected.\r\nClick the controller text in the status bar to rescan.", Color.Orange);
             }
         }
 

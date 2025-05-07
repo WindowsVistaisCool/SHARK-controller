@@ -114,6 +114,7 @@
             // 
             // p_main
             // 
+            p_main.BackgroundImageLayout = ImageLayout.Stretch;
             p_main.Controls.Add(tlp_main);
             p_main.Dock = DockStyle.Fill;
             p_main.Location = new Point(0, 25);
@@ -381,7 +382,6 @@
             // 
             console.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             console.BackColor = Color.FromArgb(28, 28, 28);
-            console.BorderStyle = BorderStyle.FixedSingle;
             tlp_main.SetColumnSpan(console, 6);
             console.Font = new Font("Cascadia Code", 10.15F, FontStyle.Regular, GraphicsUnit.Point, 0);
             console.ForeColor = SystemColors.InactiveBorder;
@@ -391,7 +391,7 @@
             console.ScrollBars = RichTextBoxScrollBars.Vertical;
             console.Size = new Size(820, 148);
             console.TabIndex = 19;
-            console.Text = "**Welcome to the S.H.A.R.K. controller!**\n**Written by Kyle Rush**";
+            console.Text = "";
             // 
             // ms
             // 
@@ -408,14 +408,14 @@
             ms_prefs.DropDownItems.AddRange(new ToolStripItem[] { backgroundPrefs });
             ms_prefs.Name = "ms_prefs";
             ms_prefs.Size = new Size(88, 21);
-            ms_prefs.Text = "Preferences";
+            ms_prefs.Text = "&Preferences";
             // 
             // backgroundPrefs
             // 
             backgroundPrefs.CheckOnClick = true;
             backgroundPrefs.Name = "backgroundPrefs";
             backgroundPrefs.Size = new Size(217, 24);
-            backgroundPrefs.Text = "Use Background Image";
+            backgroundPrefs.Text = "&Use Background Image";
             backgroundPrefs.CheckedChanged += backgroundPrefs_CheckedChanged;
             // 
             // ms_joystick
