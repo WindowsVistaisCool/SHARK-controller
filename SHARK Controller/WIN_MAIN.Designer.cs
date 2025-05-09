@@ -87,8 +87,8 @@
             ss_label.Font = new Font("Segoe UI", 10F);
             ss_label.Margin = new Padding(8, 5, 50, 8);
             ss_label.Name = "ss_label";
-            ss_label.Size = new Size(173, 20);
-            ss_label.Text = "S.H.A.R.K. Controller vX.X";
+            ss_label.Size = new Size(180, 20);
+            ss_label.Text = "S.H.A.R.K. Controller vDEV";
             ss_label.Click += ss_label_Click;
             // 
             // ss_robot
@@ -132,7 +132,7 @@
             tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 86F));
             tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 172F));
             tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 27F));
-            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 262F));
+            tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tlp_main.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 134F));
             tlp_main.Controls.Add(ls_console, 0, 6);
             tlp_main.Controls.Add(l_hostname, 4, 0);
@@ -193,7 +193,7 @@
             l_port.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             l_port.AutoSize = true;
             l_port.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
-            l_port.Location = new Point(689, 14);
+            l_port.Location = new Point(695, 14);
             l_port.Name = "l_port";
             l_port.Size = new Size(37, 20);
             l_port.TabIndex = 6;
@@ -209,7 +209,7 @@
             tlp_main.SetRowSpan(b_connect, 2);
             b_connect.Size = new Size(391, 66);
             b_connect.TabIndex = 2;
-            b_connect.Text = "Connect to Robot";
+            b_connect.Text = "&Connect to Robot";
             b_connect.UseVisualStyleBackColor = true;
             b_connect.Click += ConnectButtonClicked;
             // 
@@ -228,6 +228,7 @@
             // robotInfo
             // 
             robotInfo.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            robotInfo.BackColor = SystemColors.ActiveCaption;
             robotInfo.BorderStyle = BorderStyle.FixedSingle;
             tlp_main.SetColumnSpan(robotInfo, 2);
             robotInfo.Font = new Font("Segoe UI", 10.18868F);
@@ -362,10 +363,10 @@
             // nud_port
             // 
             nud_port.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            nud_port.Location = new Point(689, 40);
+            nud_port.Location = new Point(695, 40);
             nud_port.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
             nud_port.Name = "nud_port";
-            nud_port.Size = new Size(134, 25);
+            nud_port.Size = new Size(128, 25);
             nud_port.TabIndex = 7;
             nud_port.Value = new decimal(new int[] { 8008, 0, 0, 0 });
             // 
@@ -375,7 +376,7 @@
             cb_hostname.FormattingEnabled = true;
             cb_hostname.Location = new Point(427, 40);
             cb_hostname.Name = "cb_hostname";
-            cb_hostname.Size = new Size(256, 25);
+            cb_hostname.Size = new Size(262, 25);
             cb_hostname.TabIndex = 18;
             // 
             // console
@@ -428,20 +429,22 @@
             // joystick_rescan
             // 
             joystick_rescan.Name = "joystick_rescan";
-            joystick_rescan.Size = new Size(170, 24);
+            joystick_rescan.ShortcutKeys = Keys.F1;
+            joystick_rescan.Size = new Size(214, 24);
             joystick_rescan.Text = "&Rescan";
             joystick_rescan.Click += ss_controller_Click;
             // 
             // tss1
             // 
             tss1.Name = "tss1";
-            tss1.Size = new Size(167, 6);
+            tss1.Size = new Size(211, 6);
             // 
             // joystick_bypass
             // 
             joystick_bypass.CheckOnClick = true;
             joystick_bypass.Name = "joystick_bypass";
-            joystick_bypass.Size = new Size(170, 24);
+            joystick_bypass.ShortcutKeys = Keys.Control | Keys.B;
+            joystick_bypass.Size = new Size(214, 24);
             joystick_bypass.Text = "&Bypass Joystick";
             joystick_bypass.Click += joystick_bypass_Click;
             // 
@@ -449,7 +452,7 @@
             // 
             joystick_configure.Enabled = false;
             joystick_configure.Name = "joystick_configure";
-            joystick_configure.Size = new Size(170, 24);
+            joystick_configure.Size = new Size(214, 24);
             joystick_configure.Text = "&Configure/Test";
             joystick_configure.Visible = false;
             // 

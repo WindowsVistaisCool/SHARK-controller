@@ -581,7 +581,7 @@ namespace SHARK_Controller
             {
                 ss_controller.Text = "Controller disconnected.";
                 ss_controller.BackColor = Color.Red;
-                AddConsoleText("[SHARK UI] WARNING! No controller detected.\r\nClick the controller text in the status bar to rescan.", Color.Orange);
+                AddConsoleText("[SHARK UI] WARNING! No controller detected.\r\nPress F1 to rescan.", Color.Orange);
             }
         }
 
