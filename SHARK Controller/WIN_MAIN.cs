@@ -97,7 +97,7 @@ namespace SHARK_Controller
                 }),
                 new ThreadSafeModification<Button>(b_connect, (c) => {
                     c.Enabled = true;
-                    c.Text = "Connect to Robot";
+                    c.Text = "&Connect to Robot";
                 }),
                 new ThreadSafeModification<TextBox>(robotState, (c) => {
                     c.Text = "Disconnected";
@@ -532,7 +532,7 @@ namespace SHARK_Controller
             else
             {
                 socketConnected = false;
-                b_connect.Text = "Connect to Robot";
+                b_connect.Text = "&Connect to Robot";
                 AddConsoleText("[SHARK UI] Return from session.", Color.AliceBlue);
             }
         }
