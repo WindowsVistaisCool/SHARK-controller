@@ -252,10 +252,10 @@ namespace SHARK_Controller
                     if (isInTele)
                     {
                         // Send stick data
-                        int leftX = RoundStick(NormalizeStick(gamepad.LeftThumbX));
-                        int leftY = RoundStick(NormalizeStick(gamepad.LeftThumbY));
-                        int rightX = RoundStick(NormalizeStick(gamepad.RightThumbX));
-                        int rightY = RoundStick(NormalizeStick(gamepad.RightThumbY));
+                        int leftX = (int) NormalizeStick(gamepad.LeftThumbX);
+                        int leftY = (int) NormalizeStick(gamepad.LeftThumbY);
+                        int rightX = (int) NormalizeStick(gamepad.RightThumbX);
+                        int rightY = (int) NormalizeStick(gamepad.RightThumbY);
                         int triggerL = RoundStick(gamepad.LeftTrigger, 75f);
                         int triggerR = RoundStick(gamepad.RightTrigger, 75f);
 
@@ -464,7 +464,7 @@ namespace SHARK_Controller
 
         private static float NormalizeStick(short value)
         {
-            return Math.Clamp(value / 32767f, -1f, 1f);
+            return Math.Clamp(value / 327.67f, -100f, 100f);
         }
 
         private static int RoundStick(float value, float threshold = 0.55f)
