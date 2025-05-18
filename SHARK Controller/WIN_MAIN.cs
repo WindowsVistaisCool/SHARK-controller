@@ -242,12 +242,6 @@ namespace SHARK_Controller
                     var state = controller.GetState();
                     var gamepad = state.Gamepad;
 
-                    if (gamepad.Buttons == GamepadButtonFlags.Start)
-                    {
-                        WriteConsole("Disconnecting client.");
-                        break;
-                    }
-
                     // Only send joystick data in teleop
                     if (isInTele)
                     {
