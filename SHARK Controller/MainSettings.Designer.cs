@@ -72,5 +72,17 @@ namespace SHARK_Controller {
                 this["UsingBackground"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8080")]
+        public int CameraStreamPort {
+            get {
+                return ((int)(this["CameraStreamPort"]));
+            }
+            set {
+                this["CameraStreamPort"] = value;
+            }
+        }
     }
 }

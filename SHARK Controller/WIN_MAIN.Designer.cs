@@ -62,6 +62,8 @@
             joystick_configure = new ToolStripMenuItem();
             ms_auton = new ToolStripMenuItem();
             robot_auton = new ToolStripComboBox();
+            ms_cams = new ToolStripMenuItem();
+            stream_launch = new ToolStripMenuItem();
             ms_help = new ToolStripMenuItem();
             help_about = new ToolStripMenuItem();
             ss.SuspendLayout();
@@ -299,7 +301,7 @@
             b_kill.Name = "b_kill";
             b_kill.Size = new Size(110, 24);
             b_kill.TabIndex = 15;
-            b_kill.Text = "Kill Robot Code";
+            b_kill.Text = "&Kill Robot Code";
             b_kill.UseVisualStyleBackColor = true;
             b_kill.Click += b_kill_Click;
             // 
@@ -397,7 +399,7 @@
             // ms
             // 
             ms.ImageScalingSize = new Size(18, 18);
-            ms.Items.AddRange(new ToolStripItem[] { ms_prefs, ms_joystick, ms_auton, ms_help });
+            ms.Items.AddRange(new ToolStripItem[] { ms_prefs, ms_joystick, ms_cams, ms_auton, ms_help });
             ms.Location = new Point(0, 0);
             ms.Name = "ms";
             ms.Size = new Size(846, 25);
@@ -471,6 +473,21 @@
             robot_auton.Name = "robot_auton";
             robot_auton.Size = new Size(121, 25);
             robot_auton.SelectedIndexChanged += robot_auton_TextUpdate;
+            // 
+            // ms_cams
+            // 
+            ms_cams.DropDownItems.AddRange(new ToolStripItem[] { stream_launch });
+            ms_cams.Name = "ms_cams";
+            ms_cams.Size = new Size(71, 21);
+            ms_cams.Text = "C&ameras";
+            ms_cams.Visible = false;
+            // 
+            // stream_launch
+            // 
+            stream_launch.Name = "stream_launch";
+            stream_launch.Size = new Size(198, 24);
+            stream_launch.Text = "&Launch Stream";
+            stream_launch.Click += vision_launch_Click;
             // 
             // ms_help
             // 
@@ -553,5 +570,7 @@
         private RichTextBox console;
         private ToolStripMenuItem ms_prefs;
         private ToolStripMenuItem backgroundPrefs;
+        private ToolStripMenuItem ms_cams;
+        private ToolStripMenuItem stream_launch;
     }
 }

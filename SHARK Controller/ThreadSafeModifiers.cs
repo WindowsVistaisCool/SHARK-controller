@@ -34,6 +34,34 @@ namespace SHARK_Controller
         }
     }
 
+    public readonly struct NullableThreadSafeModification<T>(T? control, Action<T> modifier) : IThreadSafeModification where T : Control
+    {
+        public readonly T? Control = control;
+        public readonly Action<T> Modifier = modifier;
+        public void ApplyUnsafe() => Modifier(Control!);
+        public void Apply()
+        {
+            if (Control == null)
+                return;
+            if (Control.InvokeRequired)
+            {
+                Control.Invoke((MethodInvoker)Apply);
+            }
+            else
+            {
+                // now use ModifyUnsafe now that we are safe
+                ApplyUnsafe();
+            }
+        }
+    }
+
+    public readonly struct UnsafeModification(Action modifier) : IThreadSafeModification
+    {
+        public readonly Action Modifier = modifier;
+        public void ApplyUnsafe() => Modifier();
+        public void Apply() => ApplyUnsafe();
+    }
+
     public readonly struct TSMCollection(IEnumerable<IThreadSafeModification> modifications) : IThreadSafeModification
     {
         public readonly IEnumerable<IThreadSafeModification> Modifications = modifications;

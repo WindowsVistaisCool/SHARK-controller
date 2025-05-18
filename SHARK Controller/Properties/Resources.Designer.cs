@@ -81,7 +81,7 @@ namespace SHARK_Controller.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to v1.4.1.
+        ///   Looks up a localized string similar to v1.5-beta.
         /// </summary>
         internal static string AppVersion {
             get {

@@ -1,3 +1,4 @@
+using Microsoft.Web.WebView2.Core;
 using SharpDX.XInput;
 using System.Diagnostics;
 using System.Drawing;
@@ -23,12 +24,15 @@ namespace SHARK_Controller
         private Thread? socketReciever = null;
 
         private bool socketConnected = false;
+        private bool robotSimulated = false;
 
         private bool teleopRequest = false;
         private bool autoRequest = false;
         private bool disableRequest = false;
         private bool killRequest = false;
         private bool changeAutoRequest = false;
+        private bool cameraStartRequest = false;
+        private bool cameraStopRequest = false;
 
         private bool isInTele = false;
         private string selectedAutonName = "";
@@ -91,7 +95,8 @@ namespace SHARK_Controller
             disconnectControlModifications = new TSMCollection([
                 new ThreadSafeModification<RichTextBox>(console, (c) => {
                     ms_auton.Enabled = false;
-                    c.AppendText("[SHARK UI] Return from session.\r\n");
+                    ms_cams.Visible = false;
+                    //c.AppendText("[SHARK UI] Return from session.\r\n");
                     c.SelectionStart = c.Text.Length;
                     c.ScrollToCaret();
                 }),
@@ -121,6 +126,18 @@ namespace SHARK_Controller
                     c.BackColor = Color.FromKnownColor(KnownColor.Control);
                 }),
                 TSMPresets.SetEnabled(b_kill, false),
+                new ThreadSafeModification<WIN_MAIN>(this, (_) => {
+                    foreach (Form openForm in Application.OpenForms) {
+                        if (openForm is WIN_CameraStream cameraStream) {
+                            try {
+                                cameraStream.Close();
+                                break;
+                            } catch (Exception ex) {
+                                WriteConsole($"[CAMERA] Error closing camera stream: {ex.Message}", Color.Red);
+                            }
+                        }
+                    }
+                }),
                 //TSMPresets.SetVisible(b_startCode, true)
             ]);
         }
@@ -136,7 +153,7 @@ namespace SHARK_Controller
                 }
                 else if (bypassJoystick)
                 {
-                    WriteConsole("[SOCKET] WARNING! Bypassing joystick input.", Color.Orange);
+                    WriteConsole("[SHARK CONTROLLER] WARNING! Bypassing joystick input.", Color.Orange);
                 }
 
                 client.Connect(hostName, port);
@@ -204,6 +221,18 @@ namespace SHARK_Controller
                         changeAutoRequest = false;
                         continue;
                     }
+                    if (cameraStartRequest)
+                    {
+                        WriteData(stream, "cam-start");
+                        cameraStartRequest = false;
+                        continue;
+                    }
+                    if (cameraStopRequest)
+                    {
+                        WriteData(stream, "cam-stop");
+                        cameraStopRequest = false;
+                        continue;
+                    }
 
 
                     if (bypassJoystick)
@@ -261,7 +290,7 @@ namespace SHARK_Controller
             finally
             {
                 client.Close();
-                WriteConsole("[SOCKET] Connection closed.", Color.Pink);
+                WriteConsole("[SOCKET] Connection closed.", Color.DeepPink);
             }
             sessionActive = false;
             socketConnected = false;
@@ -275,7 +304,7 @@ namespace SHARK_Controller
         {
             try
             {
-                WriteConsole($"[RECIEVER] Connected.", Color.Green);
+                WriteConsole($"[RECIEVER] Connected.", Color.DeepPink);
                 while (socketConnected)
                 {
                     byte[] buffer = new byte[256];
@@ -291,13 +320,13 @@ namespace SHARK_Controller
                     if (message.StartsWith("[STATE] "))
                     {
                         string stateMessage = message[8..];
-                        WriteConsole($"{message}");
                         if (stateMessage == "DISABLE")
                         {
                             new ThreadSafeModification<TextBox>(robotState, (c) =>
                             {
-                                c.Text = "DISABLED";
+                                c.Text = robotSimulated ? "SIM - DISABLED" : "DISABLED";
                                 c.BackColor = Color.Red;
+                                ms_auton.Enabled = true;
                             }).Apply();
                             isInTele = false;
                             SetEnableButton(false);
@@ -306,8 +335,9 @@ namespace SHARK_Controller
                         {
                             new ThreadSafeModification<TextBox>(robotState, (c) =>
                             {
-                                c.Text = "TELEOP";
+                                c.Text = robotSimulated ? "SIM - TELEOP" : "TELEOP";
                                 c.BackColor = Color.Green;
+                                ms_auton.Enabled = false;
                             }).Apply();
                             isInTele = true;
                             SetEnableButton(true);
@@ -316,8 +346,9 @@ namespace SHARK_Controller
                         {
                             new ThreadSafeModification<TextBox>(robotState, (c) =>
                             {
-                                c.Text = "AUTONOMOUS";
+                                c.Text = robotSimulated ? "SIM - AUTONOMOUS" : "AUTONOMOUS";
                                 c.BackColor = Color.Yellow;
+                                ms_auton.Enabled = false;
                             }).Apply();
                             isInTele = false;
                             SetEnableButton(true);
@@ -328,27 +359,54 @@ namespace SHARK_Controller
                     {
                         try
                         {
-                            var splitted = message.Split("[AUTONS]");
-                            if (splitted.Length > 1)
+                            var splitted = message.Split("[SIG]");
+                            if (splitted.Length >= 1)
                             {
-                                var autonList = splitted[1].Split(',');
-                                foreach (var item in autonList)
+                                if (splitted.Length >= 1 && splitted[1].Contains("[AUTONS]"))
                                 {
-                                    if (item == "")
+                                    var autonList = splitted[1].Replace("[AUTONS]", "").Split(',');
+                                    foreach (var item in autonList)
                                     {
-                                        continue;
+                                        if (item == "")
+                                        {
+                                            continue;
+                                        }
+                                        new ThreadSafeModification<RichTextBox>(console, (c) =>
+                                        {
+                                            robot_auton.Items.Add(item);
+                                        }).Apply();
                                     }
-                                    new ThreadSafeModification<RichTextBox>(console, (c) =>
+                                    splitted[1] = "";
+                                }
+                                if (splitted.Length >= 2 && splitted[2].Contains("[FLAGS]"))
+                                {
+                                    var flags = splitted[2].Replace("[FLAGS]", "").Split(',');
+                                    foreach (var item in flags)
                                     {
-                                        robot_auton.Items.Add(item);
-                                    }).Apply();
+                                        if (item == "")
+                                        {
+                                            continue;
+                                        }
+                                        if (item == "sim")
+                                        {
+                                            robotSimulated = true;
+                                        }
+                                        else if (item == "camera" && !robotSimulated)
+                                        {
+                                            new ThreadSafeModification<Panel>(p_main, (c) =>
+                                            {
+                                                ms_cams.Visible = true;
+                                            }).Apply();
+                                        }
+                                    }
+                                    splitted[2] = "";
                                 }
                             }
                             else
                             {
                                 throw new Exception("No [AUTONS] found in message.");
                             }
-                            WriteRobotInfo($"{splitted[0].Replace("\n", "\r\n")}");
+                            WriteRobotInfo($"{splitted[0].Replace("\n", "\r\n").Replace("[ROBOTINFO]", "")}");
                         }
                         catch (Exception ex)
                         {
@@ -358,45 +416,50 @@ namespace SHARK_Controller
                     }
                     else
                     {
-                        Color color = defaultConsoleColor;
+                        foreach (string line in message.Split("%NL%"))
+                        {
+                            string toConsole = line.Replace("%NL%", "");
 
-                        if (message.StartsWith("%GREEN%"))
-                        {
-                            message = message.Replace("%GREEN%", "");
-                            color = Color.LawnGreen;
+                            Color color = defaultConsoleColor;
+
+                            if (line.StartsWith("%GREEN%"))
+                            {
+                                toConsole = toConsole.Replace("%GREEN%", "");
+                                color = Color.LawnGreen;
+                            }
+                            else if (toConsole.StartsWith("%ORANGE%"))
+                            {
+                                toConsole = toConsole.Replace("%ORANGE%", "");
+                                color = Color.Orange;
+                            }
+                            else if (toConsole.StartsWith("%BLUE%"))
+                            {
+                                toConsole = toConsole.Replace("%BLUE%", "");
+                                color = Color.Blue;
+                            }
+                            else if (toConsole.StartsWith("%YELLOW%"))
+                            {
+                                toConsole = toConsole.Replace("%YELLOW%", "");
+                                color = Color.Yellow;
+                            }
+                            else if (toConsole.StartsWith("%RED%"))
+                            {
+                                toConsole = toConsole.Replace("%RED%", "");
+                                color = Color.Red;
+                            }
+                            WriteConsole(toConsole, color);
                         }
-                        else if (message.StartsWith("%ORANGE%"))
-                        {
-                            message = message.Replace("%ORANGE%", "");
-                            color = Color.Orange;
-                        }
-                        else if (message.StartsWith("%BLUE%"))
-                        {
-                            message = message.Replace("%BLUE%", "");
-                            color = Color.Blue;
-                        }
-                        else if (message.StartsWith("%YELLOW%"))
-                        {
-                            message = message.Replace("%YELLOW%", "");
-                            color = Color.Yellow;
-                        }
-                        else if (message.StartsWith("%RED%"))
-                        {
-                            message = message.Replace("%RED%", "");
-                            color = Color.Red;
-                        }
-                        WriteConsole(message, color);
                     }
                 }
             }
             catch (Exception ex)
             {
-                WriteConsole($"[RECIEVER] Reciever Error: {ex.Message}");
+                WriteConsole($"[RECIEVER] Reciever Error: {ex.Message}", Color.Red);
             }
             finally
             {
                 socketReciever = null;
-                WriteConsole("[RECIEVER] Reciever closed.");
+                WriteConsole("[RECIEVER] Reciever closed.", Color.DeepPink);
             }
         }
 
@@ -420,6 +483,10 @@ namespace SHARK_Controller
 
         private void WriteConsole(string message, Color color)
         {
+            if (message == "")
+            {
+                return;
+            }
             new ThreadSafeModification<RichTextBox>(console, (c) =>
             {
                 try
@@ -504,6 +571,7 @@ namespace SHARK_Controller
                 robotInfo.Text = "";
                 robotState.Text = "Connecting";
                 robotState.BackColor = Color.SandyBrown;
+                robotSimulated = false;
                 b_startCode.Visible = false;
                 b_connect.Enabled = false;
                 b_teleop.Enabled = false;
@@ -522,7 +590,7 @@ namespace SHARK_Controller
                 MainSettings.Default.Port = port;
                 MainSettings.Default.Save();
 
-                AddConsoleText("[SHARK UI] New session created.", Color.AliceBlue);
+                //AddConsoleText("[SHARK UI] New session created.", Color.AliceBlue);
                 socketThread = new Thread(RunSocketThread)
                 {
                     IsBackground = true
@@ -533,7 +601,7 @@ namespace SHARK_Controller
             {
                 socketConnected = false;
                 b_connect.Text = "&Connect to Robot";
-                AddConsoleText("[SHARK UI] Return from session.", Color.AliceBlue);
+                //AddConsoleText("[SHARK UI] Return from session.", Color.AliceBlue);
             }
         }
         private void clearConsole_Click(object sender, EventArgs e)
@@ -581,7 +649,7 @@ namespace SHARK_Controller
             {
                 ss_controller.Text = "Controller disconnected.";
                 ss_controller.BackColor = Color.Red;
-                AddConsoleText("[SHARK UI] WARNING! No controller detected.\r\nPress F1 to rescan.", Color.Orange);
+                AddConsoleText("[SHARK CONTROLLER] WARNING! No controller detected.\r\nPress F1 to rescan.", Color.Orange);
             }
         }
 
@@ -690,6 +758,15 @@ namespace SHARK_Controller
         private static Image GetImageFromBytes(byte[] bytes)
         {
             return Image.FromStream(new MemoryStream(bytes));
+        }
+
+        private void vision_launch_Click(object sender, EventArgs e)
+        {
+            cameraStartRequest = true;
+            stream_launch.Enabled = false;
+            new WIN_CameraStream($"{hostName} - Camera Stream", $"http://{hostName}:{MainSettings.Default.CameraStreamPort}/?action=stream", () => {
+                stream_launch.Enabled = true;
+            }).Show();
         }
     }
 
