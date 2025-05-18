@@ -55,6 +55,10 @@ namespace SHARK_Controller
             AddConsoleText("** Welcome to the S.H.A.R.K. Controller! **", Color.DarkCyan);
             AddConsoleText($"** Version {VersionStr} **", Color.BlueViolet);
             AddConsoleText("** Written by Kyle Rush **", Color.BlueViolet);
+            if (Properties.Resources.BetaWarning == "true")
+            {
+                AddConsoleText("** Warning! This is a BETA version. Use with caution. **", Color.Red);
+            }
 
             cb_hostname.Text = MainSettings.Default.Hostname;
             foreach (var item in MainSettings.Default.SavedHosts)
@@ -70,11 +74,6 @@ namespace SHARK_Controller
             hostName = cb_hostname.Text;
             port = (int)nud_port.Value;
             backgroundPrefs.Checked = MainSettings.Default.UsingBackground;
-
-            //_ = new DarkModeForms.DarkModeCS(this)
-            //{
-            //    ColorMode = DarkModeForms.DarkModeCS.DisplayMode.DarkMode,
-            //};
 
             ss_controller_Click(null, null); // invoke a controller scan
 
@@ -620,10 +619,19 @@ namespace SHARK_Controller
             console.ScrollToCaret(); // Scroll to the caret
         }
 
-        private void ss_label_Click(object sender, EventArgs e)
+        private void help_about_Click(object sender, EventArgs e)
         {
             MessageBox.Show($"Written by Kyle Rush.\nVersion {VersionStr}", "About SHARK Controller", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
+        //private void enableDarkMode(object sender, EventArgs e)
+        //{
+        //    _ = new DarkModeForms.DarkModeCS(this)
+        //    {
+        //        ColorMode = DarkModeForms.DarkModeCS.DisplayMode.DarkMode,
+        //    };
+        //    Invalidate();
+        //}
 
         private void ss_controller_Click(object? sender, EventArgs? e)
         {
@@ -764,10 +772,12 @@ namespace SHARK_Controller
         {
             cameraStartRequest = true;
             stream_launch.Enabled = false;
-            new WIN_CameraStream($"{hostName} - Camera Stream", $"http://{hostName}:{MainSettings.Default.CameraStreamPort}/?action=stream", () => {
+            new WIN_CameraStream($"{hostName} - Camera Stream", $"http://{hostName}:{MainSettings.Default.CameraStreamPort}/?action=stream", () =>
+            {
                 stream_launch.Enabled = true;
             }).Show();
         }
+
     }
 
 }

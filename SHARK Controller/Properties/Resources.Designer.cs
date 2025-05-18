@@ -98,5 +98,14 @@ namespace SHARK_Controller.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to true.
+        /// </summary>
+        internal static string BetaWarning {
+            get {
+                return ResourceManager.GetString("BetaWarning", resourceCulture);
+            }
+        }
     }
 }

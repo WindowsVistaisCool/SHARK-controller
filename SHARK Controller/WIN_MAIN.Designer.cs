@@ -60,10 +60,10 @@
             tss1 = new ToolStripSeparator();
             joystick_bypass = new ToolStripMenuItem();
             joystick_configure = new ToolStripMenuItem();
-            ms_auton = new ToolStripMenuItem();
-            robot_auton = new ToolStripComboBox();
             ms_cams = new ToolStripMenuItem();
             stream_launch = new ToolStripMenuItem();
+            ms_auton = new ToolStripMenuItem();
+            robot_auton = new ToolStripComboBox();
             ms_help = new ToolStripMenuItem();
             help_about = new ToolStripMenuItem();
             ss.SuspendLayout();
@@ -91,7 +91,7 @@
             ss_label.Name = "ss_label";
             ss_label.Size = new Size(180, 20);
             ss_label.Text = "S.H.A.R.K. Controller vDEV";
-            ss_label.Click += ss_label_Click;
+            ss_label.Click += help_about_Click;
             // 
             // ss_robot
             // 
@@ -458,6 +458,21 @@
             joystick_configure.Text = "&Configure/Test";
             joystick_configure.Visible = false;
             // 
+            // ms_cams
+            // 
+            ms_cams.DropDownItems.AddRange(new ToolStripItem[] { stream_launch });
+            ms_cams.Name = "ms_cams";
+            ms_cams.Size = new Size(71, 21);
+            ms_cams.Text = "C&ameras";
+            ms_cams.Visible = false;
+            // 
+            // stream_launch
+            // 
+            stream_launch.Name = "stream_launch";
+            stream_launch.Size = new Size(167, 24);
+            stream_launch.Text = "&Launch Stream";
+            stream_launch.Click += vision_launch_Click;
+            // 
             // ms_auton
             // 
             ms_auton.DropDownItems.AddRange(new ToolStripItem[] { robot_auton });
@@ -474,21 +489,6 @@
             robot_auton.Size = new Size(121, 25);
             robot_auton.SelectedIndexChanged += robot_auton_TextUpdate;
             // 
-            // ms_cams
-            // 
-            ms_cams.DropDownItems.AddRange(new ToolStripItem[] { stream_launch });
-            ms_cams.Name = "ms_cams";
-            ms_cams.Size = new Size(71, 21);
-            ms_cams.Text = "C&ameras";
-            ms_cams.Visible = false;
-            // 
-            // stream_launch
-            // 
-            stream_launch.Name = "stream_launch";
-            stream_launch.Size = new Size(198, 24);
-            stream_launch.Text = "&Launch Stream";
-            stream_launch.Click += vision_launch_Click;
-            // 
             // ms_help
             // 
             ms_help.DropDownItems.AddRange(new ToolStripItem[] { help_about });
@@ -501,7 +501,7 @@
             help_about.Name = "help_about";
             help_about.Size = new Size(117, 24);
             help_about.Text = "&About";
-            help_about.Click += ss_label_Click;
+            help_about.Click += help_about_Click;
             // 
             // WIN_MAIN
             // 
