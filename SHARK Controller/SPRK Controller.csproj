@@ -7,16 +7,16 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>betterbetter.ico</ApplicationIcon>
-    <PackageIcon>sharkico.png</PackageIcon>
+    <PackageIcon>star.png</PackageIcon>
+    <ApplicationIcon>star.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="betterbetter.ico" />
+    <Content Include="star.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\assets\sharkico.png">
+    <None Include="..\assets\star.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace SHARK_Controller
+namespace SPRK
 {
     public interface IThreadSafeModification
     {

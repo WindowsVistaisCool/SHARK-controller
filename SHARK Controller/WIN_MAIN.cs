@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Net.Sockets;
 using System.Text;
 
-namespace SHARK_Controller
+namespace SPRK
 {
     public partial class WIN_MAIN : Form
     {
@@ -47,12 +47,12 @@ namespace SHARK_Controller
             InitializeComponent();
 
             VersionStr = Properties.Resources.AppVersion;
-            ss_label.Text = $"S.H.A.R.K. Controller {VersionStr}";
+            ss_label.Text = $"S.P.R.K Controller {VersionStr}";
             defaultConsoleColor = console.ForeColor;
 
             ss_label.Image = GetImageFromBytes(Properties.Resources.AppPNG);
 
-            AddConsoleText("** Welcome to the S.H.A.R.K. Controller! **", Color.DarkCyan);
+            AddConsoleText("** Welcome to the S.P.R.K Controller! **", Color.DarkCyan);
             AddConsoleText($"** Version {VersionStr} **", Color.BlueViolet);
             AddConsoleText("** Written by Kyle Rush **", Color.BlueViolet);
             if (Properties.Resources.BetaWarning == "true")
@@ -615,7 +615,7 @@ namespace SHARK_Controller
 
         private void help_about_Click(object sender, EventArgs e)
         {
-            MessageBox.Show($"Written by Kyle Rush.\nVersion {VersionStr}", "About SHARK Controller", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"Written by Kyle Rush.\nVersion {VersionStr}", "About SHARK Controller\nIcon from Freepik", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         //private void enableDarkMode(object sender, EventArgs e)
@@ -717,7 +717,7 @@ namespace SHARK_Controller
         {
             if (cb_hostname.Text.ToLower() != "shark")
             {
-                MessageBox.Show("This is only supported on the offical S.H.A.R.K.!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("This is only supported on the offical S.P.R.K!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 

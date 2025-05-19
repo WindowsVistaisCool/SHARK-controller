@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SHARK_Controller.Properties {
+namespace SPRK.Properties {
     using System;
     
     
@@ -81,7 +81,7 @@ namespace SHARK_Controller.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to v1.5-beta.
+        ///   Looks up a localized string similar to v1.6.
         /// </summary>
         internal static string AppVersion {
             get {
@@ -100,7 +100,7 @@ namespace SHARK_Controller.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to true.
+        ///   Looks up a localized string similar to false.
         /// </summary>
         internal static string BetaWarning {
             get {

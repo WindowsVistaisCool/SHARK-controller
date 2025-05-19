@@ -1,6 +1,6 @@
 ﻿using Microsoft.Web.WebView2.WinForms;
 
-namespace SHARK_Controller
+namespace SPRK
 {
     partial class WIN_CameraStream
     {

@@ -1,4 +1,4 @@
-namespace SHARK_Controller
+namespace SPRK
 {
     internal static class Program
     {

@@ -1,4 +1,4 @@
-﻿namespace SHARK_Controller
+﻿namespace SPRK
 {
     partial class WIN_MAIN
     {
@@ -412,6 +412,7 @@
             ms_prefs.Name = "ms_prefs";
             ms_prefs.Size = new Size(88, 21);
             ms_prefs.Text = "&Preferences";
+            ms_prefs.Visible = false;
             // 
             // backgroundPrefs
             // 
@@ -469,7 +470,7 @@
             // stream_launch
             // 
             stream_launch.Name = "stream_launch";
-            stream_launch.Size = new Size(167, 24);
+            stream_launch.Size = new Size(198, 24);
             stream_launch.Text = "&Launch Stream";
             stream_launch.Click += vision_launch_Click;
             // 
@@ -479,7 +480,7 @@
             ms_auton.Enabled = false;
             ms_auton.Name = "ms_auton";
             ms_auton.Size = new Size(132, 21);
-            ms_auton.Text = "Select &Autonomous";
+            ms_auton.Text = "&Select Autonomous";
             // 
             // robot_auton
             // 
@@ -517,7 +518,7 @@
             MinimumSize = new Size(862, 524);
             Name = "WIN_MAIN";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "S.H.A.R.K. Controller";
+            Text = "S.P.R.K. Controller";
             FormClosing += WIN_MAIN_FormClosing;
             KeyDown += WIN_MAIN_KeyDown;
             KeyUp += WIN_MAIN_KeyUp;

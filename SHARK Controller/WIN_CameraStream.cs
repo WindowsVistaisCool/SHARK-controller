@@ -1,4 +1,4 @@
-﻿namespace SHARK_Controller
+﻿namespace SPRK
 {
     public partial class WIN_CameraStream : Form
     {
