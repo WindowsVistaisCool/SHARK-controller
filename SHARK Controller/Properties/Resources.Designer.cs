@@ -39,7 +39,7 @@ namespace SPRK.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SHARK_Controller.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SPRK.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -81,7 +81,7 @@ namespace SPRK.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to v1.6.
+        ///   Looks up a localized string similar to v1.6.1.
         /// </summary>
         internal static string AppVersion {
             get {

@@ -1,7 +1,5 @@
-using Microsoft.Web.WebView2.Core;
 using SharpDX.XInput;
 using System.Diagnostics;
-using System.Drawing;
 using System.Net.Sockets;
 using System.Text;
 
@@ -95,7 +93,6 @@ namespace SPRK
                 new ThreadSafeModification<RichTextBox>(console, (c) => {
                     ms_auton.Enabled = false;
                     ms_cams.Visible = false;
-                    //c.AppendText("[SHARK UI] Return from session.\r\n");
                     c.SelectionStart = c.Text.Length;
                     c.ScrollToCaret();
                 }),
@@ -152,7 +149,7 @@ namespace SPRK
                 }
                 else if (bypassJoystick)
                 {
-                    WriteConsole("[SHARK CONTROLLER] WARNING! Bypassing joystick input.", Color.Orange);
+                    WriteConsole("[SPRK CONTROLLER] WARNING! Bypassing joystick input.", Color.Orange);
                 }
 
                 client.Connect(hostName, port);
@@ -583,7 +580,6 @@ namespace SPRK
                 MainSettings.Default.Port = port;
                 MainSettings.Default.Save();
 
-                //AddConsoleText("[SHARK UI] New session created.", Color.AliceBlue);
                 socketThread = new Thread(RunSocketThread)
                 {
                     IsBackground = true
@@ -594,7 +590,6 @@ namespace SPRK
             {
                 socketConnected = false;
                 b_connect.Text = "&Connect to Robot";
-                //AddConsoleText("[SHARK UI] Return from session.", Color.AliceBlue);
             }
         }
         private void clearConsole_Click(object sender, EventArgs e)
@@ -615,17 +610,8 @@ namespace SPRK
 
         private void help_about_Click(object sender, EventArgs e)
         {
-            MessageBox.Show($"Written by Kyle Rush.\nVersion {VersionStr}", "About SHARK Controller\nIcon from Freepik", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show($"Written by Kyle Rush.\nVersion {VersionStr}", "About SPRK Controller\nIcon from Freepik", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-
-        //private void enableDarkMode(object sender, EventArgs e)
-        //{
-        //    _ = new DarkModeForms.DarkModeCS(this)
-        //    {
-        //        ColorMode = DarkModeForms.DarkModeCS.DisplayMode.DarkMode,
-        //    };
-        //    Invalidate();
-        //}
 
         private void ss_controller_Click(object? sender, EventArgs? e)
         {
@@ -651,7 +637,7 @@ namespace SPRK
             {
                 ss_controller.Text = "Controller disconnected.";
                 ss_controller.BackColor = Color.Red;
-                AddConsoleText("[SHARK CONTROLLER] WARNING! No controller detected.\r\nPress F1 to rescan.", Color.Orange);
+                AddConsoleText("[SPRK CONTROLLER] WARNING! No controller detected.\r\nPress F1 to rescan.", Color.Orange);
             }
         }
 
@@ -715,7 +701,7 @@ namespace SPRK
 
         private void b_startCode_Click(object sender, EventArgs e)
         {
-            if (cb_hostname.Text.ToLower() != "shark")
+            if (cb_hostname.Text.ToLower() != "sprk")
             {
                 MessageBox.Show("This is only supported on the offical S.P.R.K!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -724,11 +710,6 @@ namespace SPRK
             Process sshProcess = Process.Start("cmd.exe");
             sshProcess.StartInfo.Arguments = $"/c ssh pi@{cb_hostname.Text} \"cd /home/pi/robot && python3 Main.py\"";
             sshProcess.Start();
-        }
-
-        private void robot_customPacket_Click(object sender, EventArgs e)
-        {
-            new WIN_CustomPacket().ShowDialog();
         }
 
         private void robot_auton_TextUpdate(object sender, EventArgs e)
